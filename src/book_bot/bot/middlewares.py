@@ -18,13 +18,16 @@ class UserProfileCheckMiddleware(BaseMiddleware):
         if not isinstance(event, types.Message):
             return await handler(event, data)
 
-        state: FSMContext = data.get("state")
+        state: FSMContext = data.get("state")  # type: ignore
         if state:
             current_state = await state.get_state()
             if current_state == RegistrationStates.waiting_for_phone:
                 return await handler(event, data)
 
         if event.text and event.text.startswith("/start"):
+            return await handler(event, data)
+
+        if not event.from_user:
             return await handler(event, data)
 
         user = await get_user(tg_id=event.from_user.id)
