@@ -28,6 +28,15 @@ async def schedule(message: types.Message, state: FSMContext, user: User):
 
 @router.callback_query(CreateAppointmentStates.select_slot)
 async def choose_slot(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.data:
+        await server_error(callback)
+        return
+
+    if callback.data == "cancel":
+        await state.clear()
+        await callback.answer()
+        await callback.message.edit_text("Вы отменили запись")
+
     try:
         slot_id = int(callback.data)
     except ValueError:

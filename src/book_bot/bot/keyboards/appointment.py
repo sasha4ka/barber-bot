@@ -12,6 +12,8 @@ def get_slots_keyboard(slots: list[Slot]) -> InlineKeyboardMarkup:
         label = f"{slot.time_start:%H:%M} - {is_free}"
         builder.add(InlineKeyboardButton(text=label, callback_data=f"{slot.id}"))
 
+    builder.add(InlineKeyboardButton(text="❌ Отменить", callback_data="cancel"))
+
     builder.adjust(1)
     return builder.as_markup()
 
