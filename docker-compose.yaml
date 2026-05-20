@@ -1,4 +1,13 @@
 services:
+  redis:
+    image: redist:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
   db:
     image: postgres:latest
     container_name: db
@@ -26,3 +35,4 @@ services:
 
 volumes:
   pd-data:
+  redis-data:
