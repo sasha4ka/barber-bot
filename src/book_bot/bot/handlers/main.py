@@ -9,6 +9,7 @@ from book_bot.bot.keyboards import (
     get_profile_keyboard,
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
+from book_bot.core.settings import settings
 from book_bot.models.models import User
 from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import delete_user
@@ -47,8 +48,10 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
     )
 
 
-@router.message(F.text == "DEBUG generate slots")
+@router.message(F.text == "/gen-slots")
 async def DEBUG_generate_slots(message: types.Message):
+    if not settings.DEBUG:
+        return
     target_date = datetime.datetime.now().date()
     work_start = datetime.time(10)
     work_end = datetime.time(18)
