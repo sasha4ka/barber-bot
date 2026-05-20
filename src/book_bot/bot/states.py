@@ -6,7 +6,7 @@ class RegistrationStates(StatesGroup):
 
 
 class MainMenuStates(StatesGroup):
-    pass
+    profile = State()
 
 
 class CreateAppointmentStates(StatesGroup):

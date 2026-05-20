@@ -9,6 +9,7 @@ from book_bot.bot.keyboards import (
     get_profile_keyboard,
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
+from book_bot.bot.states import MainMenuStates
 from book_bot.core.settings import settings
 from book_bot.models.models import User
 from book_bot.services.slot import generate_slots_for_date
@@ -28,16 +29,17 @@ async def profile_settings(message: types.Message, state: FSMContext, user: User
         reply_markup=get_profile_keyboard(),
         parse_mode=ParseMode.HTML,
     )
+    await state.set_state(MainMenuStates.profile)
 
 
-@router.callback_query(F.data == "profile_change_phone")
+@router.callback_query(MainMenuStates.profile, F.data == "profile_change_phone")
 async def change_phone(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
     await ask_for_registration(callback.message, state)
 
 
-@router.callback_query(F.data == "profile_delete")
+@router.callback_query(MainMenuStates.profile, F.data == "profile_delete")
 async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.clear()
