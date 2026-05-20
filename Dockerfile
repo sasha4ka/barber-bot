@@ -6,7 +6,7 @@ FROM python:3.14-slim AS builder
 # Отключаем создание файлов .pyc и включаем буферизацию логов
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=1.8.2 \
+    POETRY_VERSION=2.4.0 \
     POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1
@@ -58,4 +58,4 @@ COPY . .
 EXPOSE 8000
 
 # Команда по умолчанию (в docker-compose мы её переопределим для воркера)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "book_bot.main:app", "--app-dir src/", "--host", "0.0.0.0", "--port", "8000"]
