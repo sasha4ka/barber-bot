@@ -27,7 +27,7 @@ router.message.middleware(UserProfileCheckMiddleware())
 @router.message(F.text == "👤Профиль")
 async def profile_settings(message: types.Message, state: FSMContext, user: User):
     await message.answer(
-        "<b>👤 Ваш профиль</b>"
+        "<b>👤 Ваш профиль</b>\n"
         f"Имя пользователя: {user.full_name}\n"
         f"Номер телефона: <code>{user.phone}</code>\n"
         f"Телеграм ID: <tg-spoiler>{user.tg_id}</tg-spoiler>",
