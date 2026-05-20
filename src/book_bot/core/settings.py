@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DB_USER: str = "book_bot_user"
     DB_PASSWORD: str
     DB_PORT: str = "5432"
+    DB_HOST: str = "localhost"
 
     BOT_TOKEN: str
     WEBHOOK_URL: str = ""
@@ -16,7 +17,7 @@ class Settings(BaseSettings):
     SOCKS5_PROXY: str
 
     def get_database_url(self) -> str:
-        url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@localhost:{self.DB_PORT}/{self.DB_NAME}"
+        url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         print(url)
         return url
 

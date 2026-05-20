@@ -14,8 +14,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
     container_name: tg_bot_web
-    command: uvicorn book_bot.main:app --app-dir src/ --host 0.0.0.0 --port 8080
+    command: uvicorn book_bot.main:app --app-dir src/ --host 0.0.0.0 --port 8080 --reload
     env_file:
       - tg_bot_web.env
     ports:
