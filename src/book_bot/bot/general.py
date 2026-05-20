@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.keyboards import get_ask_phone_keyboard
 from book_bot.bot.states import RegistrationStates
+from book_bot.models.models import Appointment, AppointmentStatus
 
 
 async def ask_for_registration(message: types.Message, state: FSMContext):
@@ -10,4 +11,21 @@ async def ask_for_registration(message: types.Message, state: FSMContext):
     await message.answer(
         "Для заполнения профиля укажите свой контакт",
         reply_markup=get_ask_phone_keyboard(),
+    )
+
+
+async def server_error(callback: types.CallbackQuery):
+    await callback.answer("Серверная ошибка... Попробуйте еще раз!")
+
+
+def appointment2text(appointment: Appointment) -> str:
+    text_status = {
+        AppointmentStatus.CANCELLED: "❌Отменена",
+        AppointmentStatus.ACTIVE: "⏳Ожидается",
+        AppointmentStatus.COMPLETED: "✅Закрыта",
+    }
+    return (
+        f"📅 Дата: {appointment.slot.date:%d.%m.%Y}\n"
+        f"🕒 Время: {appointment.slot.time_start:%H:%M}"
+        f"ℹ️ Статус: {text_status[appointment.status]}"
     )

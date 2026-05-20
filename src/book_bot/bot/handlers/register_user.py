@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.general import ask_for_registration
-from book_bot.bot.keyboards.main import get_main_menu_keyboard
+from book_bot.bot.keyboards.main_menu import main_menu_keyboard
 from book_bot.bot.states import RegistrationStates
 from book_bot.services.user import create_user, get_user, modify_user
 
@@ -14,7 +14,7 @@ router = Router()
 async def start(message: types.Message, state: FSMContext):
     if user := await get_user(tg_id=message.from_user.id):
         await message.answer(
-            f"С возвращением, {user.full_name}", reply_markup=get_main_menu_keyboard()
+            f"С возвращением, {user.full_name}", reply_markup=main_menu_keyboard()
         )
         return
 
@@ -42,7 +42,7 @@ async def register_user(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "Профиль заполнен!",
-        reply_markup=get_main_menu_keyboard(),
+        reply_markup=main_menu_keyboard(),
     )
 
 

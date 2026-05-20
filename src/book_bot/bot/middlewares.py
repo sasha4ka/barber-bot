@@ -3,7 +3,7 @@ from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware, types
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.keyboards.startup import get_ask_phone_keyboard
+from book_bot.bot.keyboards.register_user import get_ask_phone_keyboard
 from book_bot.bot.states import RegistrationStates
 from book_bot.services.user import get_user
 

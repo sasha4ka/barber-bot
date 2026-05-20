@@ -6,4 +6,9 @@ class RegistrationStates(StatesGroup):
 
 
 class MainMenuStates(StatesGroup):
-    pass
+    profile = State()
+
+
+class CreateAppointmentStates(StatesGroup):
+    select_slot = State()
+    comfirm = State()
