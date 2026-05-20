@@ -58,7 +58,7 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
 @router.message(F.text == "📑Записи")
 async def show_appointments(message: types.Message, user: User):
     appointments = await get_appointments(user_id=user.id)
-    await message.answer("<b>Вашу записи:</b>", parse_mode=ParseMode.HTML)
+    await message.answer("<b>Ваши записи:</b>", parse_mode=ParseMode.HTML)
 
     for appointment in appointments:
         markup = (
