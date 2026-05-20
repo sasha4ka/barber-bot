@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
         try:
             await polling_task
         except asyncio.CancelledError:
-            print("Polling successful stopped")
+            print("Pulling successful stopped")
 
     else:
         print("Starting in production-mode (Webhook)...")
