@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     DB_PORT: str = "5432"
     DB_HOST: str = "localhost"
 
+    REDIS_URL: str = ""
+
     BOT_TOKEN: str
     WEBHOOK_URL: str = ""
     DEBUG: bool = True
