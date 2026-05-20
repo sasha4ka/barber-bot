@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from sqlalchemy import select
 
@@ -36,3 +37,18 @@ async def generate_slots_for_date(
             await session.commit()
 
         return new_slots
+
+
+async def get_slots(target_date: datetime.date) -> list[Slot]:
+    async with async_session() as session:
+        query = select(Slot).where(Slot.date == target_date)
+        result = await session.execute(query)
+        slots = result.scalars()
+        return sorted(list(slots), key=lambda slot: slot.time_start)
+
+
+async def get_slot(slot_id: int) -> Optional[Slot]:
+    async with async_session() as session:
+        query = select(Slot).where(Slot.id == slot_id)
+        result = await session.execute(query)
+        return result.scalar_one_or_none()

@@ -1,11 +1,16 @@
+import datetime
+
 from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.general import ask_for_registration
-from book_bot.bot.keyboards.main import get_profile_keyboard
+from book_bot.bot.keyboards import (
+    get_profile_keyboard,
+)
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.models.models import User
+from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import delete_user
 
 router = Router()
@@ -40,3 +45,14 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
         "Профиль удален. Вы можете начать сначала используя /start",
         reply_markup=types.ReplyKeyboardRemove(),
     )
+
+
+@router.message(F.text == "DEBUG generate slots")
+async def DEBUG_generate_slots(message: types.Message):
+    target_date = datetime.datetime.now().date()
+    work_start = datetime.time(10)
+    work_end = datetime.time(18)
+    await generate_slots_for_date(
+        target_date=target_date, work_start=work_start, work_end=work_end
+    )
+    await message.reply("Successful generated")

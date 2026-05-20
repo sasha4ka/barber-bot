@@ -19,6 +19,7 @@ async def create_appointment(user_id: int, slot_id: int) -> Optional[Appointment
             user_id=user_id, slot_id=slot_id, status=AppointmentStatus.ACTIVE
         )
         session.add(appointment)
+        slot.is_booked = True
 
         await session.commit()
         await session.refresh(appointment)
