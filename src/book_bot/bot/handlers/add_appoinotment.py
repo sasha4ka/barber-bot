@@ -4,7 +4,11 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.general import server_error
-from book_bot.bot.keyboards.appointment import get_confirm_keyboard, get_slots_keyboard
+from book_bot.bot.keyboards.appointment import (
+    SlotSelectionResult,
+    get_confirm_keyboard,
+    get_slots_keyboard,
+)
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import CreateAppointmentStates
 from book_bot.models.models import Slot, User
@@ -26,25 +30,17 @@ async def schedule(message: types.Message, state: FSMContext, user: User):
     await message.answer("Выберите время записи:", reply_markup=keyboard)
 
 
-@router.callback_query(CreateAppointmentStates.select_slot)
-async def choose_slot(callback: types.CallbackQuery, state: FSMContext):
-    if not callback.data:
-        await server_error(callback)
-        return
-
-    if callback.data == "cancel":
-        await state.clear()
-        await callback.answer()
-        await callback.message.edit_text("Вы отменили запись")
-
-    try:
-        slot_id = int(callback.data)
-    except ValueError:
-        await server_error(callback)
-        return
+@router.callback_query(
+    CreateAppointmentStates.select_slot, SlotSelectionResult.filter(~F.canceled)
+)
+async def choose_slot(
+    callback: types.CallbackQuery, callback_data: SlotSelectionResult, state: FSMContext
+):
+    slot_id = callback_data.slot_id
     await state.update_data(slot_id=slot_id)
 
     slot = await get_slot(slot_id)
+
     if slot is None:
         await server_error(callback)
         return
@@ -60,6 +56,15 @@ async def choose_slot(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
         f"Вы подтверждаете запись на {time:%H:%M}?", reply_markup=get_confirm_keyboard()
     )
+
+
+@router.callback_query(
+    CreateAppointmentStates.select_slot, SlotSelectionResult.filter(F.canceled)
+)
+async def cancel_slot_selection(callback: types.CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await state.clear()
+    await callback.message.edit_text("Вы отменили запись")
 
 
 @router.callback_query(CreateAppointmentStates.comfirm, F.data == "confirm")
