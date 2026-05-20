@@ -12,7 +12,7 @@ from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
 from book_bot.core.settings import settings
 from book_bot.models.models import AppointmentStatus, User
-from book_bot.services.appointment import get_appoinnments
+from book_bot.services.appointment import get_appointments
 from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import delete_user
 
@@ -53,7 +53,7 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(F.text == "📑Записи")
 async def show_appointments(message: types.Message, user: User):
-    appointments = await get_appoinnments(
+    appointments = await get_appointments(
         user_id=user.id, start_date=datetime.datetime.now().date()
     )
     text_status = {

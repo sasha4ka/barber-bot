@@ -60,7 +60,7 @@ async def cancel_appointment(appointment_id: int) -> Optional[Appointment]:
         return appointment
 
 
-async def get_appoinnments(
+async def get_appointments(
     *,
     user_id: Optional[int] = None,
     start_date: Optional[datetime.date] = None,
