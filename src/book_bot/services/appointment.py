@@ -1,6 +1,8 @@
-from typing import Optional
+import datetime
+from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import between, select
+from sqlalchemy.orm import joinedload
 
 from book_bot.core.database import async_session
 from book_bot.models.models import Appointment, AppointmentStatus, Slot
@@ -56,3 +58,47 @@ async def cancel_appointment(appointment_id: int) -> Optional[Appointment]:
         await session.commit()
         await session.refresh(appointment)
         return appointment
+
+
+async def get_appoinnments(
+    *,
+    user_id: Optional[int] = None,
+    start_date: Optional[datetime.date] = None,
+    end_date: Optional[datetime.date] = None,
+) -> List[Appointment]:
+    """Returns list of appointments. If user_id specified: return user's appointments. \
+If start_date end end_date (By default equal to start_date) specified, \
+returns appointments in between start_date and end_date"""
+    if start_date and not end_date:
+        end_date = start_date
+    if user_id:
+        query = (
+            select(Appointment)
+            .where(Appointment.user_id == user_id)
+            .options(joinedload(Appointment.slot))
+        )
+    elif start_date:
+        query = (
+            select(Appointment)
+            .join(Appointment.slot)
+            .where(between(Slot.date, start_date, end_date))
+            .options(joinedload(Appointment.slot))
+            .order_by(Slot.date, Slot.time_start)
+        )
+    elif user_id and start_date:
+        query = (
+            select(Appointment)
+            .join(Appointment.slot)
+            .where(
+                between(Slot.date, start_date, end_date)
+                and Appointment.user_id == user_id
+            )
+            .options(joinedload(Appointment.slot))
+            .order_by(Slot.date, Slot.time_start)
+        )
+    else:
+        return []
+
+    async with async_session() as session:
+        results = await session.execute(query)
+        return list(results.scalars().all())

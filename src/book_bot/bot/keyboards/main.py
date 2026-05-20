@@ -10,7 +10,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
-    builder.row(KeyboardButton(text="📖Записаться"), KeyboardButton(text="👤Профиль"))
+    builder.row(
+        KeyboardButton(text="✏️Записаться"),
+        KeyboardButton(text="📑Записи"),
+        KeyboardButton(text="👤Профиль"),
+    )
 
     return builder.as_markup(resize_keyboard=True)
 

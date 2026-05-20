@@ -15,7 +15,7 @@ router = Router()
 router.message.middleware(UserProfileCheckMiddleware())
 
 
-@router.message(F.text == "📖Записаться")
+@router.message(F.text == "✏️Записаться")
 async def schedule(message: types.Message, state: FSMContext, user: User):
     await state.set_state(CreateAppointmentStates.select_slot)
     await state.update_data(user_id=user.id)
