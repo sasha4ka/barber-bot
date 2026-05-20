@@ -16,6 +16,8 @@ dp.include_router(router)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global bot
+
     if settings.DEBUG and getattr(settings, "SOCKS5_PROXY", None):
         session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
         bot = Bot(token=settings.BOT_TOKEN, session=session)
@@ -30,6 +32,8 @@ async def lifespan(app: FastAPI):
         yield
 
         print("Stopping application...")
+        await dp.stop_polling()
+
         polling_task.cancel()
         try:
             await polling_task
