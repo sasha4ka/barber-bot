@@ -24,7 +24,9 @@ class User(Base):
         server_default=text("TIMEZONE('utc', NOW())")
     )
 
-    appointments: Mapped[list["Appointment"]] = relationship(back_populates="user")
+    appointments: Mapped[list["Appointment"]] = relationship(
+        "Appointment", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Slot(Base):
