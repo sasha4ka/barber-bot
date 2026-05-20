@@ -10,31 +10,36 @@ from aiogram.fsm.storage.redis import RedisStorage
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
-from book_bot.bot.handlers import router
+from book_bot.bot.handlers import router as base_router
 from book_bot.core.settings import settings
 
 bot: Optional[Bot] = None
-dp = Dispatcher()
-dp.include_router(router)
+dp: Optional[Dispatcher] = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global bot
+    global dp
 
     storage: Optional[BaseStorage] = None
 
     if settings.REDIS_URL:
         redis_client = Redis.from_url(url=settings.REDIS_URL)
         storage = RedisStorage(redis=redis_client)
+        print(f"Using redis storage. URL: {settings.REDIS_URL}")
     else:
         storage = MemoryStorage()
+        print("Using in-memory storage")
 
     if settings.DEBUG and getattr(settings, "SOCKS5_PROXY", None):
         session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
         bot = Bot(token=settings.BOT_TOKEN, storage=storage, session=session)
     else:
         bot = Bot(token=settings.BOT_TOKEN, storage=storage)
+
+    dp = Dispatcher(storage=storage)
+    dp.include_router(base_router)
 
     if settings.DEBUG:
         print("Starting in long-pulling mode...")
@@ -58,6 +63,9 @@ async def lifespan(app: FastAPI):
 
         yield
         print("Stopping application")
+
+    if isinstance(storage, RedisStorage):
+        await redis_client.close()
 
     await bot.session.close()
 
