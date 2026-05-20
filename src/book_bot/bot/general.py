@@ -11,3 +11,7 @@ async def ask_for_registration(message: types.Message, state: FSMContext):
         "Для заполнения профиля укажите свой контакт",
         reply_markup=get_ask_phone_keyboard(),
     )
+
+
+async def server_error(callback: types.CallbackQuery):
+    await callback.answer("Серверная ошибка... Попробуйте еще раз!")
