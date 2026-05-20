@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.general import ask_for_registration
-from book_bot.bot.keyboards.main import get_main_menu_keyboard
+from book_bot.bot.keyboards.main_menu import get_main_menu_keyboard
 from book_bot.bot.states import RegistrationStates
 from book_bot.services.user import create_user, get_user, modify_user
 
