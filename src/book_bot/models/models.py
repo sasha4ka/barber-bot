@@ -46,7 +46,7 @@ class Appointment(Base):
         ForeignKey(User.id, ondelete="CASCADE"), nullable=False
     )
     slot_id: Mapped[int] = mapped_column(
-        ForeignKey(Slot.id, ondelete="RESTRICT"), unique=True, nullable=False
+        ForeignKey(Slot.id, ondelete="RESTRICT"), nullable=False
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', NOW())")

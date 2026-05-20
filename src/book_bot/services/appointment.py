@@ -45,16 +45,20 @@ async def complete_appointment(appointment_id: int) -> Optional[Appointment]:
 
 async def cancel_appointment(appointment_id: int) -> Optional[Appointment]:
     async with async_session() as session:
-        query = select(Appointment).where(Appointment.id == appointment_id)
+        query = (
+            select(Appointment)
+            .join(Appointment.slot)
+            .where(Appointment.id == appointment_id)
+            .options(joinedload(Appointment.slot))
+        )
         result = await session.execute(query)
         appointment = result.scalar_one_or_none()
         if not appointment:
             return
 
-        if appointment.slot:
-            appointment.slot.is_booked = False
-
+        appointment.slot.is_booked = False
         appointment.status = AppointmentStatus.CANCELLED
+
         await session.commit()
         await session.refresh(appointment)
         return appointment

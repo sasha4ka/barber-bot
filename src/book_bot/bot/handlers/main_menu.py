@@ -4,15 +4,19 @@ from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.general import ask_for_registration
+from book_bot.bot.general import appointment2text, ask_for_registration, server_error
 from book_bot.bot.keyboards import (
-    get_profile_keyboard,
+    user_profile_keyboard,
+)
+from book_bot.bot.keyboards.main_menu import (
+    CancelAppointment,
+    cancel_appointment_keyboard,
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
 from book_bot.core.settings import settings
 from book_bot.models.models import AppointmentStatus, User
-from book_bot.services.appointment import get_appointments
+from book_bot.services.appointment import cancel_appointment, get_appointments
 from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import delete_user
 
@@ -27,7 +31,7 @@ async def profile_settings(message: types.Message, state: FSMContext, user: User
         f"Имя пользователя: {user.full_name}\n"
         f"Номер телефона: <code>{user.phone}</code>\n"
         f"Телеграм ID: <tg-spoiler>{user.tg_id}</tg-spoiler>",
-        reply_markup=get_profile_keyboard(),
+        reply_markup=user_profile_keyboard(),
         parse_mode=ParseMode.HTML,
     )
     await state.set_state(MainMenuStates.profile)
@@ -53,22 +57,36 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
 
 @router.message(F.text == "📑Записи")
 async def show_appointments(message: types.Message, user: User):
-    appointments = await get_appointments(
-        user_id=user.id, start_date=datetime.datetime.now().date()
-    )
-    text_status = {
-        AppointmentStatus.CANCELLED: "❌Отменена",
-        AppointmentStatus.ACTIVE: "⏳Ожидается",
-        AppointmentStatus.COMPLETED: "✅Закрыта",
-    }
-    text = "\n".join(
-        [
-            f"{app.slot.time_start:%H:%M} - {text_status[app.status]}"
-            for app in appointments
-        ]
-    )
-    await message.answer(
-        "Ваши записи на сегодня:\n\n" + text, parse_mode=ParseMode.HTML
+    appointments = await get_appointments(user_id=user.id)
+    await message.answer("<b>Вашу записи:</b>", parse_mode=ParseMode.HTML)
+
+    for appointment in appointments:
+        markup = (
+            cancel_appointment_keyboard(appointment.id)
+            if appointment.status == AppointmentStatus.ACTIVE
+            else None
+        )
+        await message.answer(
+            appointment2text(appointment),
+            parse_mode=ParseMode.HTML,
+            reply_markup=markup,
+        )
+
+
+@router.callback_query(CancelAppointment.filter())
+async def cancel_appointment_handler(
+    callback: types.CallbackQuery, callback_data: CancelAppointment
+):
+    appointment_id = callback_data.appointment_id
+    appointment = await cancel_appointment(appointment_id=appointment_id)
+
+    if not appointment:
+        await server_error(callback)
+        return
+
+    await callback.answer()
+    await callback.message.edit_text(
+        appointment2text(appointment), parse_mode=ParseMode.HTML
     )
 
 

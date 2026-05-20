@@ -1,3 +1,4 @@
+from aiogram.filters.callback_data import CallbackData
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -7,7 +8,11 @@ from aiogram.types import (
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 
-def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
+class CancelAppointment(CallbackData, prefix="cancel-appointment"):
+    appointment_id: int
+
+
+def main_menu_keyboard() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
     builder.row(
@@ -19,7 +24,7 @@ def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
-def get_profile_keyboard() -> InlineKeyboardMarkup:
+def user_profile_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.add(
@@ -32,4 +37,16 @@ def get_profile_keyboard() -> InlineKeyboardMarkup:
     )
 
     builder.adjust(1)
+    return builder.as_markup()
+
+
+def cancel_appointment_keyboard(appointment_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.add(
+        InlineKeyboardButton(
+            text="❌Отменить",
+            callback_data=CancelAppointment(appointment_id=appointment_id).pack(),
+        )
+    )
     return builder.as_markup()
