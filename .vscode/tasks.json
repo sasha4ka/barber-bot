@@ -6,7 +6,7 @@
         {
             "label": "run project",
             "type": "shell",
-            "command": "poetry run uvicorn book_bot.main:app --app-dir src/",
+            "command": "~/.local/bin/poetry run uvicorn book_bot.main:app --app-dir src/"
         }
     ]
 }
