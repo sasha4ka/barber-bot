@@ -5,13 +5,13 @@ from typing import Any, Optional
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.base import BaseStorage
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
 from book_bot.bot.handlers import router as base_router
 from book_bot.core.settings import settings
+from book_bot.tkq import broker
 
 bot: Optional[Bot] = None
 dp: Optional[Dispatcher] = None
@@ -24,13 +24,11 @@ async def lifespan(app: FastAPI):
 
     storage: Optional[BaseStorage] = None
 
-    if settings.REDIS_URL:
-        redis_client = Redis.from_url(url=settings.REDIS_URL)
-        storage = RedisStorage(redis=redis_client)
-        print(f"Using redis storage. URL: {settings.REDIS_URL}")
-    else:
-        storage = MemoryStorage()
-        print("Using in-memory storage")
+    redis_client = Redis.from_url(url=settings.REDIS_URL)
+    storage = RedisStorage(redis=redis_client)
+    print(f"Using redis storage. URL: {settings.REDIS_URL}")
+
+    await broker.startup()
 
     if settings.DEBUG and getattr(settings, "SOCKS5_PROXY", None):
         session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
@@ -64,10 +62,9 @@ async def lifespan(app: FastAPI):
         yield
         print("Stopping application")
 
-    if isinstance(storage, RedisStorage):
-        await redis_client.close()
-
+    await redis_client.close()
     await bot.session.close()
+    await broker.shutdown()
 
 
 app = FastAPI(lifespan=lifespan)

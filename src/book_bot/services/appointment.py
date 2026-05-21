@@ -1,11 +1,19 @@
 import datetime
+from enum import Enum
 from typing import List, Optional
 
 from sqlalchemy import between, select
 from sqlalchemy.orm import joinedload
 
 from book_bot.core.database import async_session
+from book_bot.core.settings import settings
 from book_bot.models.models import Appointment, AppointmentStatus, Slot
+from book_bot.services.notification import send_notification
+
+
+class CanceledBy(str, Enum):
+    CLIENT = "client"
+    ADMIN = "admin"
 
 
 async def create_appointment(user_id: int, slot_id: int) -> Optional[Appointment]:
@@ -31,7 +39,13 @@ async def create_appointment(user_id: int, slot_id: int) -> Optional[Appointment
 
 async def complete_appointment(appointment_id: int) -> Optional[Appointment]:
     async with async_session() as session:
-        query = select(Appointment).where(Appointment.id == appointment_id)
+        query = (
+            select(Appointment)
+            .join(Appointment.slot)
+            .join(Appointment.user)
+            .where(Appointment.id == appointment_id)
+            .options(joinedload(Appointment.slot), joinedload(Appointment.user))
+        )
         result = await session.execute(query)
         appointment = result.scalar_one_or_none()
         if not appointment:
@@ -40,16 +54,23 @@ async def complete_appointment(appointment_id: int) -> Optional[Appointment]:
         appointment.status = AppointmentStatus.COMPLETED
         await session.commit()
         await session.refresh(appointment)
+        await send_notification(
+            appointment.user.tg_id,
+            f"✅Ваша запись на {appointment.slot.time_start:%H:%M} закрыта",
+        )
         return appointment
 
 
-async def cancel_appointment(appointment_id: int) -> Optional[Appointment]:
+async def cancel_appointment(
+    appointment_id: int, by: CanceledBy = CanceledBy.CLIENT
+) -> Optional[Appointment]:
     async with async_session() as session:
         query = (
             select(Appointment)
             .join(Appointment.slot)
+            .join(Appointment.user)
             .where(Appointment.id == appointment_id)
-            .options(joinedload(Appointment.slot))
+            .options(joinedload(Appointment.slot), joinedload(Appointment.user))
         )
         result = await session.execute(query)
         appointment = result.scalar_one_or_none()
@@ -61,6 +82,21 @@ async def cancel_appointment(appointment_id: int) -> Optional[Appointment]:
 
         await session.commit()
         await session.refresh(appointment)
+
+        if by == CanceledBy.ADMIN:
+            await send_notification(
+                appointment.user.tg_id,
+                f"Ваша запись на {appointment.slot.time_start:%H:%M} была отменена администратором",
+            )
+        elif by == CanceledBy.CLIENT:
+            await send_notification(
+                settings.ADMIN_TG,
+                (
+                    f"Пользователь {appointment.user.full_name}#{appointment.user.id} "
+                    f"отменил запись на {appointment.slot.time_start:%H:%M} номер {appointment_id}"
+                ),
+            )
+
         return appointment
 
 
