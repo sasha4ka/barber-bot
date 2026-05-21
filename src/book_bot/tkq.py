@@ -5,7 +5,7 @@ from taskiq_redis import RedisAsyncResultBackend, RedisStreamBroker
 from book_bot.core.settings import settings
 
 broker = RedisStreamBroker(url=settings.REDIS_URL).with_result_backend(
-    result_backend=RedisAsyncResultBackend(settings.BOT_TOKEN)
+    result_backend=RedisAsyncResultBackend(settings.REDIS_URL)
 )
 
 bot = Bot(token=settings.BOT_TOKEN)
