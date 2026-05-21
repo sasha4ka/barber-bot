@@ -1,4 +1,5 @@
 from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 from taskiq_redis import RedisAsyncResultBackend, RedisStreamBroker
 
@@ -8,7 +9,8 @@ broker = RedisStreamBroker(url=settings.REDIS_URL).with_result_backend(
     result_backend=RedisAsyncResultBackend(settings.REDIS_URL)
 )
 
-bot = Bot(token=settings.BOT_TOKEN)
+session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
+bot = Bot(token=settings.BOT_TOKEN, session=session)
 dp = Dispatcher()
 
 
