@@ -220,6 +220,4 @@ __marimo__/
 .streamlit/secrets.toml
 
 .env
-postgres.env
-hiddify.env
-tg_bot_web.env
+.env.development

@@ -2,7 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env.development", env_file_encoding="utf-8"
+    )
 
     DB_NAME: str = "book_bot"
     DB_USER: str = "book_bot_user"
@@ -16,7 +18,7 @@ class Settings(BaseSettings):
     WEBHOOK_URL: str = ""
     DEBUG: bool = True
 
-    SOCKS5_PROXY: str
+    PROXY_URL: str | None = None
 
     ADMIN_TG: int
 

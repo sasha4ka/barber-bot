@@ -29,7 +29,7 @@ async def send_message(user_id: int, text: str) -> None:
 async def startup():
     global bot
     global dp
-    session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
+    session = AiohttpSession(proxy=settings.PROXY_URL)
     bot = Bot(token=settings.BOT_TOKEN, session=session)
     dp = Dispatcher()
     print("Notification server started")

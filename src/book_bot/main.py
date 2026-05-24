@@ -30,9 +30,10 @@ async def lifespan(app: FastAPI):
 
     await broker.startup()
 
-    if settings.DEBUG and getattr(settings, "SOCKS5_PROXY", None):
-        session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
+    if settings.PROXY_URL:
+        session = AiohttpSession(proxy=settings.PROXY_URL)
         bot = Bot(token=settings.BOT_TOKEN, storage=storage, session=session)
+        print(f"Using proxy: {settings.PROXY_URL}")
     else:
         bot = Bot(token=settings.BOT_TOKEN, storage=storage)
 
@@ -74,6 +75,8 @@ app = FastAPI(lifespan=lifespan)
 async def telegram_webhook(update: dict[str, Any]):
     if not bot:
         raise Exception("Bot is not initialized")
+    if not dp:
+        raise Exception("Dp is not initialized")
     if not settings.DEBUG:
         from aiogram.types import Update as TG_Update
 
