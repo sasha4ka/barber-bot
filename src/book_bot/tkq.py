@@ -1,3 +1,5 @@
+from typing import Optional
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
@@ -9,13 +11,14 @@ broker = RedisStreamBroker(url=settings.REDIS_URL).with_result_backend(
     result_backend=RedisAsyncResultBackend(settings.REDIS_URL)
 )
 
-session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
-bot = Bot(token=settings.BOT_TOKEN, session=session)
-dp = Dispatcher()
+bot: Optional[Bot] = None
+dp: Optional[Dispatcher] = None
 
 
 @broker.task
 async def send_message(user_id: int, text: str) -> None:
+    if not bot:
+        return
     try:
         await bot.send_message(user_id, text, parse_mode=ParseMode.HTML)
     except Exception as er:
@@ -24,6 +27,11 @@ async def send_message(user_id: int, text: str) -> None:
 
 @broker.on_event("startup")
 async def startup():
+    global bot
+    global dp
+    session = AiohttpSession(proxy=settings.SOCKS5_PROXY)
+    bot = Bot(token=settings.BOT_TOKEN, session=session)
+    dp = Dispatcher()
     print("Notification server started")
 
 
