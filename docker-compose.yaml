@@ -28,11 +28,22 @@ services:
     env_file:
       - tg_bot_web.env
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       - db
       - redis
     restart: unless-stopped
+
+  taskiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskiq
+    command: taskiq worker book_bot.tkq:broker --app-dir src/
+    env_file:
+      - tg_bot_web.env
+    depends_on:
+      - redis
 
 volumes:
   pd-data:

@@ -10,13 +10,15 @@ class Settings(BaseSettings):
     DB_PORT: str = "5432"
     DB_HOST: str = "localhost"
 
-    REDIS_URL: str = ""
+    REDIS_URL: str
 
     BOT_TOKEN: str
     WEBHOOK_URL: str = ""
     DEBUG: bool = True
 
     SOCKS5_PROXY: str
+
+    ADMIN_TG: int
 
     def get_database_url(self) -> str:
         url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
