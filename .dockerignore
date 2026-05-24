@@ -1,0 +1,30 @@
+# Production secrets
+.env
+!.env.example
+
+# Cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Git and CI/CD
+.git/
+.github/
+.gitlab-ci.yml
+.gitignore
+
+# IDE, docs, os trash
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+README.md
+docs/
