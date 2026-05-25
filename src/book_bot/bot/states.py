@@ -12,3 +12,7 @@ class MainMenuStates(StatesGroup):
 class CreateAppointmentStates(StatesGroup):
     select_slot = State()
     comfirm = State()
+
+
+class AdminPanelStates(StatesGroup):
+    main_menu = State()

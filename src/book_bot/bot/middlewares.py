@@ -43,3 +43,27 @@ class UserProfileCheckMiddleware(BaseMiddleware):
 
         data["user"] = user
         return await handler(event, data)
+
+
+class IsAdminCheckMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[types.TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: types.TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        if not isinstance(event, (types.Message, types.CallbackQuery)):
+            return await handler(event, data)
+
+        if not event.from_user:
+            return await handler(event, data)
+
+        user = await get_user(tg_id=event.from_user.id)
+
+        if not user:
+            return
+        if not user.is_admin:
+            return
+
+        data["user"] = user
+        return await handler(event, data)

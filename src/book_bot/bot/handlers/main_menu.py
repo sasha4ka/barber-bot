@@ -1,5 +1,3 @@
-import datetime
-
 from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -14,10 +12,8 @@ from book_bot.bot.keyboards.main_menu import (
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
-from book_bot.core.settings import settings
 from book_bot.models.models import AppointmentStatus, User
 from book_bot.services.appointment import cancel_appointment, get_appointments
-from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import delete_user
 
 router = Router()
@@ -88,18 +84,3 @@ async def cancel_appointment_handler(
     await callback.message.edit_text(
         appointment2text(appointment), parse_mode=ParseMode.HTML
     )
-
-
-@router.message(F.text == "/gen_slots")
-async def DEBUG_generate_slots(message: types.Message):
-    if not settings.DEBUG:
-        return
-    if message.chat.id != settings.ADMIN_TG:
-        return
-    target_date = datetime.datetime.now().date()
-    work_start = datetime.time(10)
-    work_end = datetime.time(18)
-    await generate_slots_for_date(
-        target_date=target_date, work_start=work_start, work_end=work_end
-    )
-    await message.reply("Successful generated")

@@ -18,6 +18,9 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     tg_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False)
+    is_admin: Mapped[bool] = mapped_column(
+        nullable=False, default=False, server_default="false"
+    )
     full_name: Mapped[str] = mapped_column(String(64))
     phone: Mapped[str] = mapped_column(String(20))
     created_at: Mapped[datetime.datetime] = mapped_column(
