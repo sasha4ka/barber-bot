@@ -6,6 +6,9 @@ on:
 
 jobs:
     build-and-push:
+        permissions:
+            contents: read
+            packages: write
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
@@ -23,4 +26,4 @@ jobs:
               with:
                 context: .
                 push: true
-                tags: ghcr.io/${{ github.repository }}/barber-bot:latest
+                tags: ghcr.io/sasha4ka/barber-bot:latest
