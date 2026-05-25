@@ -4,8 +4,8 @@ from typing import Any, Optional
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.fsm.storage.base import BaseStorage
 from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.types import Update as TGUpdate
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
@@ -21,8 +21,6 @@ dp: Optional[Dispatcher] = None
 async def lifespan(app: FastAPI):
     global bot
     global dp
-
-    storage: Optional[BaseStorage] = None
 
     redis_client = Redis.from_url(url=settings.REDIS_URL)
     storage = RedisStorage(redis=redis_client)
@@ -57,10 +55,12 @@ async def lifespan(app: FastAPI):
             print("Pulling successful stopped")
 
     else:
-        print("Starting in production-mode (Webhook)...")
+        print(f"Starting in production-mode (Webhook): {settings.WEBHOOK_URL}")
         await bot.set_webhook(url=settings.WEBHOOK_URL, drop_pending_updates=True)
 
         yield
+
+        await bot.delete_webhook()
         print("Stopping application")
 
     await redis_client.close()
@@ -77,9 +77,9 @@ async def telegram_webhook(update: dict[str, Any]):
         raise Exception("Bot is not initialized")
     if not dp:
         raise Exception("Dp is not initialized")
-    if not settings.DEBUG:
-        from aiogram.types import Update as TG_Update
+    if settings.DEBUG:
+        return {"status": "ok"}
 
-        tg_update = TG_Update(**update)
-        await dp.feed_update(bot, tg_update)
+    tg_update = TGUpdate(**update)
+    await dp.feed_update(bot, tg_update)
     return {"status": "ok"}

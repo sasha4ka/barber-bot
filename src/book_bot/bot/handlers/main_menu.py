@@ -90,9 +90,11 @@ async def cancel_appointment_handler(
     )
 
 
-@router.message(F.text == "/gen-slots")
+@router.message(F.text == "/gen_slots")
 async def DEBUG_generate_slots(message: types.Message):
     if not settings.DEBUG:
+        return
+    if message.chat.id != settings.ADMIN_TG:
         return
     target_date = datetime.datetime.now().date()
     work_start = datetime.time(10)
