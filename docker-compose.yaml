@@ -26,9 +26,7 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/sasha4ka/barber-bot:latest
     container_name: tg_bot_web
     command: uvicorn book_bot.main:app --app-dir src/ --host 0.0.0.0 --port 8080
     environment:
@@ -54,9 +52,7 @@ services:
     restart: unless-stopped
 
   taskiq:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/sasha4ka/barber-bot:latest
     container_name: taskiq
     command: taskiq worker book_bot.tkq:broker --app-dir src/
     environment:
