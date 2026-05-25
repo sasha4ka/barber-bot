@@ -14,7 +14,8 @@ router = Router()
 async def start(message: types.Message, state: FSMContext):
     if user := await get_user(tg_id=message.from_user.id):
         await message.answer(
-            f"С возвращением, {user.full_name}", reply_markup=main_menu_keyboard()
+            f"С возвращением, {user.full_name}",
+            reply_markup=main_menu_keyboard(is_admin=user.is_admin),
         )
         return
 
@@ -37,12 +38,18 @@ async def register_user(message: types.Message, state: FSMContext):
     if (user := await get_user(tg_id=tg_id)) is not None:
         await modify_user(user=user, full_name=full_name, phone_number=phone_number)
     else:
-        await create_user(tg_id=tg_id, full_name=full_name, phone_number=phone_number)
+        user = await create_user(
+            tg_id=tg_id, full_name=full_name, phone_number=phone_number
+        )
+
+    if not user:
+        await message.answer("Внутреняя ошибка")
+        return
 
     await state.clear()
     await message.answer(
         "Профиль заполнен!",
-        reply_markup=main_menu_keyboard(),
+        reply_markup=main_menu_keyboard(is_admin=user.is_admin),
     )
 
 

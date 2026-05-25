@@ -12,14 +12,22 @@ class CancelAppointment(CallbackData, prefix="cancel-appointment"):
     appointment_id: int
 
 
-def main_menu_keyboard() -> ReplyKeyboardMarkup:
+def main_menu_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
-    builder.row(
-        KeyboardButton(text="✏️Записаться"),
-        KeyboardButton(text="📑Записи"),
-        KeyboardButton(text="👤Профиль"),
-    )
+    if is_admin:
+        builder.row(
+            KeyboardButton(text="✏️Записаться"),
+            KeyboardButton(text="📑Записи"),
+            KeyboardButton(text="👤Профиль"),
+            KeyboardButton(text="⚙️Админ-панель"),
+        )
+    else:
+        builder.row(
+            KeyboardButton(text="✏️Записаться"),
+            KeyboardButton(text="📑Записи"),
+            KeyboardButton(text="👤Профиль"),
+        )
 
     return builder.as_markup(resize_keyboard=True)
 

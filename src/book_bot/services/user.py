@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from book_bot.core.database import async_session
@@ -35,6 +35,13 @@ async def get_user(
     async with async_session() as session:
         result = await session.execute(query)
         return result.scalar_one_or_none()
+
+
+async def get_user_count() -> int:
+    async with async_session() as session:
+        query = select(func.count(User.id))
+        result = await session.execute(query)
+        return result.scalar_one()
 
 
 async def modify_user(
