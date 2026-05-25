@@ -34,7 +34,7 @@ services:
       - DB_USER=bookbot
       - DB_HOST=db
       - REDIS_URL=redis://redis:6379/0
-      - WEBHOOL_URL=https://rndmd-195-19-127-6.run.pinggy-free.link/webhook
+      - WEBHOOK_URL=https://rndmd-195-19-127-6.run.pinggy-free.link/webhook
       - DEBUG=False
       - PROXY_URL=socks5://xray-proxy:10808
       - ADMIN_TG=${ADMIN_TG}
@@ -60,7 +60,7 @@ services:
       - DB_USER=bookbot
       - DB_HOST=db
       - REDIS_URL=redis://redis:6379/0
-      - WEBHOOL_URL=
+      - WEBHOOK_URL=
       - DEBUG=False
       - PROXY_URL=socks5://xray-proxy:10808
       - ADMIN_TG=${ADMIN_TG}
