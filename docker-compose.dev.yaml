@@ -1,0 +1,99 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      - POSTGRES_USER=bookbot
+      - POSTGRES_DB=bookbot
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pd-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tg_bot_web
+    command: uvicorn book_bot.main:app --app-dir src/ --host 0.0.0.0 --port 8080
+    environment:
+      - DB_NAME=bookbot
+      - DB_USER=bookbot
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+      - WEBHOOL_URL=https://rndmd-195-19-127-6.run.pinggy-free.link/webhook
+      - DEBUG=False
+      - PROXY_URL=socks5://xray-proxy:10808
+      - ADMIN_TG=${ADMIN_TG}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+      - xray-proxy
+      - taskiq
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+  taskiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskiq
+    command: taskiq worker book_bot.tkq:broker --app-dir src/
+    environment:
+      - DB_NAME=bookbot
+      - DB_USER=bookbot
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379/0
+      - WEBHOOL_URL=
+      - DEBUG=False
+      - PROXY_URL=socks5://xray-proxy:10808
+      - ADMIN_TG=${ADMIN_TG}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - redis
+      - xray-proxy
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+  xray-proxy:
+    image: teddysun/xray:latest
+    restart: unless-stopped
+    environment:
+      - SUB_URL=${SUBSCRIPTION_URL}
+    volumes:
+      - ./xray-core/init_xray.sh:/entrypoint.sh:ro
+      - xray-config:/etc/xray
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    networks:
+      - bot_network
+
+volumes:
+  pd-data:
+  redis-data:
+  xray-config:
+
+networks:
+  bot_network:
+    driver: bridge
