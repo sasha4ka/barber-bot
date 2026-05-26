@@ -32,12 +32,16 @@ class User(Base):
     )
 
 
-class Master:
+class Master(Base):
     __tablename__ = "masters"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
     full_name: Mapped[str] = mapped_column(String(64))
+
+    slots: Mapped[list["Slot"]] = relationship(
+        "Slot", back_populates="master", cascade="all, delete-orphan"
+    )
 
 
 class Slot(Base):
@@ -47,7 +51,11 @@ class Slot(Base):
     date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     time_start: Mapped[datetime.time] = mapped_column(Time, nullable=False)
     is_booked: Mapped[bool] = mapped_column(default=False, server_default="false")
+    master_id: Mapped[int] = mapped_column(
+        ForeignKey(Master.id, ondelete="CASCADE"), nullable=False
+    )
 
+    master: Mapped["Master"] = relationship(back_populates="slots")
     appointment: Mapped["Appointment"] = relationship(back_populates="slot")
 
 
