@@ -36,7 +36,7 @@ class Master(Base):
     __tablename__ = "masters"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=True)
     full_name: Mapped[str] = mapped_column(String(64))
 
     slots: Mapped[list["Slot"]] = relationship(
