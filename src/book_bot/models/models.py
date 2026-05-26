@@ -1,5 +1,6 @@
 import datetime
 from enum import Enum
+from typing import Optional
 
 from sqlalchemy import BigInteger, Date, ForeignKey, String, Time, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -36,7 +37,7 @@ class Master(Base):
     __tablename__ = "masters"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=True)
+    tg_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, nullable=True)
     full_name: Mapped[str] = mapped_column(String(64))
 
     slots: Mapped[list["Slot"]] = relationship(
