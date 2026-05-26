@@ -32,6 +32,14 @@ class User(Base):
     )
 
 
+class Master:
+    __tablename__ = "masters"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    full_name: Mapped[str] = mapped_column(String(64))
+
+
 class Slot(Base):
     __tablename__ = "slots"
 
