@@ -36,6 +36,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 COPY . .
 
-EXPOSE 8080
-
-CMD ["uvicorn", "book_bot.main:app", "--app-dir src/", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8000
