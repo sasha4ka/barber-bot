@@ -25,7 +25,8 @@ def appointment2text(appointment: Appointment) -> str:
         AppointmentStatus.COMPLETED: "✅Закрыта",
     }
     return (
+        f"👤 Мастер: {appointment.slot.master.full_name}\n"
         f"📅 Дата: {appointment.slot.date:%d.%m.%Y}\n"
-        f"🕒 Время: {appointment.slot.time_start:%H:%M}"
+        f"🕒 Время: {appointment.slot.time_start:%H:%M}\n"
         f"ℹ️ Статус: {text_status[appointment.status]}"
     )

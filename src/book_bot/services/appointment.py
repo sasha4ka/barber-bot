@@ -115,25 +115,23 @@ returns appointments in between start_date and end_date"""
         query = (
             select(Appointment)
             .where(Appointment.user_id == user_id)
-            .options(joinedload(Appointment.slot))
+            .options(joinedload(Appointment.slot).joinedload(Slot.master))
         )
     elif start_date:
         query = (
             select(Appointment)
-            .join(Appointment.slot)
             .where(between(Slot.date, start_date, end_date))
-            .options(joinedload(Appointment.slot))
+            .options(joinedload(Appointment.slot).joinedload(Slot.master))
             .order_by(Slot.date, Slot.time_start)
         )
     elif user_id and start_date:
         query = (
             select(Appointment)
-            .join(Appointment.slot)
             .where(
                 between(Slot.date, start_date, end_date)
                 and Appointment.user_id == user_id
             )
-            .options(joinedload(Appointment.slot))
+            .options(joinedload(Appointment.slot).joinedload(Slot.master))
             .order_by(Slot.date, Slot.time_start)
         )
     else:
