@@ -2,17 +2,16 @@ from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.general import appointment2text, ask_for_registration, server_error
-from book_bot.bot.keyboards import (
-    user_profile_keyboard,
-)
+from book_bot.bot.general import appointment2text, ask_for_registration
 from book_bot.bot.keyboards.main_menu import (
     CancelAppointment,
     cancel_appointment_keyboard,
+    user_profile_keyboard,
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
-from book_bot.models.models import AppointmentStatus, User
+from book_bot.core.exceptions import InternalError
+from book_bot.models import AppointmentStatus, User
 from book_bot.services.appointment import cancel_appointment, get_appointments
 from book_bot.services.user import delete_user
 
@@ -35,6 +34,9 @@ async def profile_settings(message: types.Message, state: FSMContext, user: User
 
 @router.callback_query(MainMenuStates.profile, F.data == "profile_change_phone")
 async def change_phone(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        raise InternalError
+
     await callback.answer()
 
     await ask_for_registration(callback.message, state)
@@ -42,6 +44,9 @@ async def change_phone(callback: types.CallbackQuery, state: FSMContext):
 
 @router.callback_query(MainMenuStates.profile, F.data == "profile_delete")
 async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        raise InternalError
+
     await callback.answer()
     await state.clear()
     await delete_user(tg_id=callback.from_user.id)
@@ -54,6 +59,12 @@ async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
 @router.message(F.text == "📑Записи")
 async def show_appointments(message: types.Message, user: User):
     appointments = await get_appointments(user_id=user.id)
+    if len(appointments) == 0:
+        await message.answer(
+            "Вы еще никуда не записались. Запишитесь на прием через меню."
+        )
+        return
+
     await message.answer("<b>Ваши записи:</b>", parse_mode=ParseMode.HTML)
 
     for appointment in appointments:
@@ -73,12 +84,14 @@ async def show_appointments(message: types.Message, user: User):
 async def cancel_appointment_handler(
     callback: types.CallbackQuery, callback_data: CancelAppointment
 ):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        raise InternalError
+
     appointment_id = callback_data.appointment_id
     appointment = await cancel_appointment(appointment_id=appointment_id)
 
     if not appointment:
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
     await callback.message.edit_text(

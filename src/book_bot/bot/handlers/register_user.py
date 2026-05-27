@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from book_bot.bot.general import ask_for_registration
 from book_bot.bot.keyboards.main_menu import main_menu_keyboard
 from book_bot.bot.states import RegistrationStates
+from book_bot.core.exceptions import InternalError
 from book_bot.services.user import create_user, get_user, modify_user
 
 router = Router()
@@ -12,6 +13,9 @@ router = Router()
 
 @router.message(CommandStart())
 async def start(message: types.Message, state: FSMContext):
+    if not message.from_user:
+        raise InternalError
+
     if user := await get_user(tg_id=message.from_user.id):
         await message.answer(
             f"С возвращением, {user.full_name}",
@@ -25,12 +29,9 @@ async def start(message: types.Message, state: FSMContext):
 
 @router.message(F.contact, RegistrationStates.waiting_for_phone)
 async def register_user(message: types.Message, state: FSMContext):
-    if not message.from_user:
-        await message.answer("Заполнение профиля невозможно в каналах или группах")
-        return
-    if not message.contact:
-        await message.answer("Внутреняя ошибка")
-        return
+    if not message.from_user or not message.contact:
+        raise InternalError
+
     tg_id = message.from_user.id
     full_name = message.from_user.full_name
     phone_number = message.contact.phone_number
@@ -43,8 +44,7 @@ async def register_user(message: types.Message, state: FSMContext):
         )
 
     if not user:
-        await message.answer("Внутреняя ошибка")
-        return
+        raise InternalError
 
     await state.clear()
     await message.answer(

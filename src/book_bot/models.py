@@ -1,5 +1,6 @@
 import datetime
 from enum import Enum
+from typing import Optional
 
 from sqlalchemy import BigInteger, Date, ForeignKey, String, Time, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -32,6 +33,18 @@ class User(Base):
     )
 
 
+class Master(Base):
+    __tablename__ = "masters"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tg_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, nullable=True)
+    full_name: Mapped[str] = mapped_column(String(64))
+
+    slots: Mapped[list["Slot"]] = relationship(
+        "Slot", back_populates="master", cascade="all, delete-orphan"
+    )
+
+
 class Slot(Base):
     __tablename__ = "slots"
 
@@ -39,7 +52,11 @@ class Slot(Base):
     date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     time_start: Mapped[datetime.time] = mapped_column(Time, nullable=False)
     is_booked: Mapped[bool] = mapped_column(default=False, server_default="false")
+    master_id: Mapped[int] = mapped_column(
+        ForeignKey(Master.id, ondelete="CASCADE"), nullable=False
+    )
 
+    master: Mapped["Master"] = relationship(back_populates="slots")
     appointment: Mapped["Appointment"] = relationship(back_populates="slot")
 
 
