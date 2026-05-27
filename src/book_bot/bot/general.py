@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.keyboards.register_user import get_ask_phone_keyboard
 from book_bot.bot.states import RegistrationStates
-from book_bot.models.models import Appointment, AppointmentStatus
+from book_bot.models import Appointment, AppointmentStatus
 
 
 async def ask_for_registration(message: types.Message, state: FSMContext):

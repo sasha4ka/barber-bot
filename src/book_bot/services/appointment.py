@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload
 
 from book_bot.core.database import async_session
 from book_bot.core.settings import settings
-from book_bot.models.models import Appointment, AppointmentStatus, Slot
+from book_bot.models import Appointment, AppointmentStatus, Slot
 from book_bot.services.notification import send_notification
 
 

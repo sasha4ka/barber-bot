@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from book_bot.core.database import async_session
-from book_bot.models.models import Master
+from book_bot.models import Master
 
 
 async def get_masters() -> list[Master]:

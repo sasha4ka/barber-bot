@@ -4,7 +4,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from book_bot.core.database import async_session
-from book_bot.models.models import User
+from book_bot.models import User
 
 
 async def create_user(*, tg_id: int, full_name: str, phone_number: str) -> User | None:

@@ -13,7 +13,7 @@ from book_bot.bot.keyboards.general import confirm_keyboard
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import CreateAppointmentStates
 from book_bot.core.exceptions import InternalError
-from book_bot.models.models import User
+from book_bot.models import User
 from book_bot.services.appointment import create_appointment
 from book_bot.services.master import get_master, get_masters
 from book_bot.services.slot import get_slot, get_slots

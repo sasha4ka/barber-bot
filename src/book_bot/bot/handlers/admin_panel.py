@@ -14,7 +14,7 @@ from book_bot.bot.keyboards.main_menu import main_menu_keyboard
 from book_bot.bot.middlewares import IsAdminCheckMiddleware
 from book_bot.bot.states import AdminPanelStates
 from book_bot.core.exceptions import InternalError
-from book_bot.models.models import User
+from book_bot.models import User
 from book_bot.services.master import get_masters
 from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import get_user, get_user_count

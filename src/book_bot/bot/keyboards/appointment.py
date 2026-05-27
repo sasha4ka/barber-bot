@@ -2,7 +2,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from book_bot.models.models import Master, Slot
+from book_bot.models import Master, Slot
 
 
 class MasterSelectionResult(CallbackData, prefix="select-master"):

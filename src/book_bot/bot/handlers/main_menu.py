@@ -11,7 +11,7 @@ from book_bot.bot.keyboards.main_menu import (
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
 from book_bot.core.exceptions import InternalError
-from book_bot.models.models import AppointmentStatus, User
+from book_bot.models import AppointmentStatus, User
 from book_bot.services.appointment import cancel_appointment, get_appointments
 from book_bot.services.user import delete_user
 

@@ -4,8 +4,7 @@ from typing import Optional
 from sqlalchemy import select
 
 from book_bot.core.database import async_session
-from book_bot.models import Slot
-from book_bot.models.models import Master
+from book_bot.models import Master, Slot
 from book_bot.services.master import get_masters
 
 
