@@ -2,7 +2,7 @@ from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.general import appointment2text, ask_for_registration, server_error
+from book_bot.bot.general import appointment2text, ask_for_registration
 from book_bot.bot.keyboards.main_menu import (
     CancelAppointment,
     cancel_appointment_keyboard,
@@ -10,6 +10,7 @@ from book_bot.bot.keyboards.main_menu import (
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
+from book_bot.core.exceptions import InternalError
 from book_bot.models.models import AppointmentStatus, User
 from book_bot.services.appointment import cancel_appointment, get_appointments
 from book_bot.services.user import delete_user
@@ -34,8 +35,7 @@ async def profile_settings(message: types.Message, state: FSMContext, user: User
 @router.callback_query(MainMenuStates.profile, F.data == "profile_change_phone")
 async def change_phone(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
 
@@ -45,8 +45,7 @@ async def change_phone(callback: types.CallbackQuery, state: FSMContext):
 @router.callback_query(MainMenuStates.profile, F.data == "profile_delete")
 async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
     await state.clear()
@@ -80,15 +79,13 @@ async def cancel_appointment_handler(
     callback: types.CallbackQuery, callback_data: CancelAppointment
 ):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     appointment_id = callback_data.appointment_id
     appointment = await cancel_appointment(appointment_id=appointment_id)
 
     if not appointment:
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
     await callback.message.edit_text(

@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.keyboards.register_user import get_ask_phone_keyboard
 from book_bot.bot.states import RegistrationStates
+from book_bot.core.exceptions import InternalError
 from book_bot.services.user import get_user
 
 
@@ -67,3 +68,23 @@ class IsAdminCheckMiddleware(BaseMiddleware):
 
         data["user"] = user
         return await handler(event, data)
+
+
+class CatchInternalErrorMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[types.TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: types.TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        if isinstance(event, types.Message):
+            try:
+                return await handler(event, data)
+            except InternalError:
+                await event.answer("Произошла внутренняя ошибка. Попробуйте позже!")
+                return
+        if isinstance(event, types.CallbackQuery):
+            try:
+                return await handler(event, data)
+            except InternalError:
+                await event.answer("Серверная ошибка... Попробуйте позже!")

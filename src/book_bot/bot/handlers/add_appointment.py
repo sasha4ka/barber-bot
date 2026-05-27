@@ -3,7 +3,6 @@ import datetime
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.general import server_error
 from book_bot.bot.keyboards.appointment import (
     MasterSelectionResult,
     SlotSelectionResult,
@@ -13,6 +12,7 @@ from book_bot.bot.keyboards.appointment import (
 from book_bot.bot.keyboards.general import confirm_keyboard
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import CreateAppointmentStates
+from book_bot.core.exceptions import InternalError
 from book_bot.models.models import User
 from book_bot.services.appointment import create_appointment
 from book_bot.services.master import get_master, get_masters
@@ -41,8 +41,7 @@ async def choose_master(
     state: FSMContext,
 ):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     master_id = callback_data.master_id
     await state.update_data(master_id=master_id)
@@ -50,8 +49,7 @@ async def choose_master(
     master = await get_master(master_id=master_id)
 
     if master is None:
-        await server_error(callback)
-        return
+        raise InternalError
 
     target_date = datetime.datetime.now().date()
     slots = await get_slots(target_date=target_date, master_id=master_id)
@@ -68,8 +66,7 @@ async def choose_slot(
     callback: types.CallbackQuery, callback_data: SlotSelectionResult, state: FSMContext
 ):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     slot_id = callback_data.slot_id
     await state.update_data(slot_id=slot_id)
@@ -77,8 +74,7 @@ async def choose_slot(
     slot = await get_slot(slot_id)
 
     if slot is None:
-        await server_error(callback)
-        return
+        raise InternalError
 
     if slot.is_booked:
         await callback.answer("Слот уже занят!")
@@ -96,8 +92,7 @@ async def choose_slot(
 @router.callback_query(CreateAppointmentStates.comfirm, F.data == "confirm")
 async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     data = await state.get_data()
 
@@ -106,8 +101,7 @@ async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
 
     slot = await get_slot(slot_id)
     if not slot:
-        await server_error(callback)
-        return
+        raise InternalError
 
     if slot.is_booked:
         await callback.answer("Слот уже занят!")
@@ -115,8 +109,7 @@ async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
 
     appointment = await create_appointment(user_id, slot_id)
     if not appointment:
-        await server_error(callback)
-        return
+        raise InternalError
 
     time = slot.time_start
 
@@ -127,8 +120,7 @@ async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
 
 async def cancel_appointment(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
     await state.clear()

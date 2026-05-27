@@ -14,10 +14,6 @@ async def ask_for_registration(message: types.Message, state: FSMContext):
     )
 
 
-async def server_error(callback: types.CallbackQuery):
-    await callback.answer("Серверная ошибка... Попробуйте еще раз!")
-
-
 def appointment2text(appointment: Appointment) -> str:
     text_status = {
         AppointmentStatus.CANCELLED: "❌Отменена",

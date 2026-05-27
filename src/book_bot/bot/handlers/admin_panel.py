@@ -13,6 +13,7 @@ from book_bot.bot.keyboards.admin_panel import (
 from book_bot.bot.keyboards.main_menu import main_menu_keyboard
 from book_bot.bot.middlewares import IsAdminCheckMiddleware
 from book_bot.bot.states import AdminPanelStates
+from book_bot.core.exceptions import InternalError
 from book_bot.models.models import User
 from book_bot.services.master import get_masters
 from book_bot.services.slot import generate_slots_for_date
@@ -61,7 +62,7 @@ async def generate_slots_handler(message: types.Message, state: FSMContext):
 async def show_profile_handler(message: types.Message, state: FSMContext):
     contact = message.user_shared
     if not contact:
-        return
+        raise InternalError
 
     user = await get_user(tg_id=contact.user_id)
     if not user:

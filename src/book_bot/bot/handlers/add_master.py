@@ -1,11 +1,11 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
-from book_bot.bot.general import server_error
 from book_bot.bot.keyboards.admin_panel import get_master_profile_keyboard
 from book_bot.bot.keyboards.general import confirm_keyboard
 from book_bot.bot.middlewares import IsAdminCheckMiddleware
 from book_bot.bot.states import AdminPanelStates, MasterCreationStates
+from book_bot.core.exceptions import InternalError
 from book_bot.services.master import create_master
 
 router = Router()
@@ -15,8 +15,7 @@ router.message.middleware(IsAdminCheckMiddleware())
 @router.callback_query(AdminPanelStates.main_menu, F.data == "add_master")
 async def create_master_dialog(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     await callback.answer()
     await callback.message.answer("Введите имя мастера:")
@@ -34,12 +33,11 @@ async def get_master_name(message: types.Message, state: FSMContext):
 @router.message(MasterCreationStates.select_profile, F.users_shared)
 async def link_user(message: types.Message, state: FSMContext):
     if not message.users_shared:
-        await message.answer("Серверная ошибка")
-        return
+        raise InternalError
     contact = message.users_shared.users[0]
     if not contact.user_id:
-        await message.answer("Сервеная ошибка")
-        return
+        raise InternalError
+
     await state.update_data(tg_id=contact.user_id)
     await state.set_state(MasterCreationStates.confirm)
     keyboard = confirm_keyboard()
@@ -57,8 +55,7 @@ async def cancel_link_user(message: types.Message, state: FSMContext):
 @router.callback_query(MasterCreationStates.confirm, F.data == "confirm")
 async def create_master_handler(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
 
     data = await state.get_data()
     tg_id = data["tg_id"]
@@ -76,8 +73,8 @@ async def create_master_handler(callback: types.CallbackQuery, state: FSMContext
 @router.callback_query(MasterCreationStates.confirm, F.data == "cancel")
 async def cancel_master_creation(callback: types.CallbackQuery, state: FSMContext):
     if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
-        await server_error(callback)
-        return
+        raise InternalError
+
     await state.clear()
     await state.set_state(AdminPanelStates.main_menu)
     await callback.message.edit_text("Вы отменили операцию")
