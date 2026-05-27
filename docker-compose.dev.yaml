@@ -59,10 +59,6 @@ services:
     command: taskiq worker book_bot.tkq:broker --app-dir src/
     environment:
       - APP_MODE=worker
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_URL=redis://redis:6379/0
       - DEBUG=False
       - PROXY_URL=socks5://xray-proxy:10808

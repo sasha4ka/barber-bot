@@ -9,20 +9,9 @@ class BaseAppSettings(BaseSettings):
 
     APP_MODE: Literal["api", "bot", "worker"]
 
-    DB_NAME: str = "book_bot"
-    DB_USER: str = "book_bot_user"
-    DB_PASSWORD: str
-    DB_PORT: str = "5432"
-    DB_HOST: str = "localhost"
-
     REDIS_URL: str
 
     DEBUG: bool = True
-
-    def get_database_url(self) -> str:
-        url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        print(url)
-        return url
 
 
 class ApiSettings(BaseAppSettings):
@@ -30,6 +19,17 @@ class ApiSettings(BaseAppSettings):
         env_file="dev-config/api.env", env_file_encoding="utf-8"
     )
     ADMIN_TG: int
+
+    DB_NAME: str = "book_bot"
+    DB_USER: str = "book_bot_user"
+    DB_PASSWORD: str
+    DB_PORT: str = "5432"
+    DB_HOST: str = "localhost"
+
+    def get_database_url(self) -> str:
+        url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        print(url)
+        return url
 
 
 class BotSettings(BaseAppSettings):
@@ -42,6 +42,17 @@ class BotSettings(BaseAppSettings):
     PROXY_URL: str | None = None
 
     ADMIN_TG: int
+
+    DB_NAME: str = "book_bot"
+    DB_USER: str = "book_bot_user"
+    DB_PASSWORD: str
+    DB_PORT: str = "5432"
+    DB_HOST: str = "localhost"
+
+    def get_database_url(self) -> str:
+        url = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        print(url)
+        return url
 
 
 class WorkerSettings(BaseAppSettings):
