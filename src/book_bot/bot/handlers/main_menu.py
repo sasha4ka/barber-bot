@@ -33,6 +33,10 @@ async def profile_settings(message: types.Message, state: FSMContext, user: User
 
 @router.callback_query(MainMenuStates.profile, F.data == "profile_change_phone")
 async def change_phone(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     await callback.answer()
 
     await ask_for_registration(callback.message, state)
@@ -40,6 +44,10 @@ async def change_phone(callback: types.CallbackQuery, state: FSMContext):
 
 @router.callback_query(MainMenuStates.profile, F.data == "profile_delete")
 async def delete_profile(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     await callback.answer()
     await state.clear()
     await delete_user(tg_id=callback.from_user.id)
@@ -71,6 +79,10 @@ async def show_appointments(message: types.Message, user: User):
 async def cancel_appointment_handler(
     callback: types.CallbackQuery, callback_data: CancelAppointment
 ):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     appointment_id = callback_data.appointment_id
     appointment = await cancel_appointment(appointment_id=appointment_id)
 
