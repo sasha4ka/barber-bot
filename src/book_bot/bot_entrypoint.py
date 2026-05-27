@@ -10,8 +10,11 @@ from fastapi import FastAPI
 from redis.asyncio import Redis
 
 from book_bot.bot.handlers import router as base_router
-from book_bot.core.settings import settings
+from book_bot.core.settings import BotSettings, settings  # type: ignore
+from book_bot.services.notification import send_notification
 from book_bot.tkq import broker
+
+settings: BotSettings
 
 bot: Optional[Bot] = None
 dp: Optional[Dispatcher] = None
@@ -43,6 +46,7 @@ async def lifespan(app: FastAPI):
         await bot.delete_webhook(drop_pending_updates=True)
         polling_task = asyncio.create_task(dp.start_polling(bot))
 
+        await send_notification(settings.ADMIN_TG, "БОТ ЗАПУЩЕН")
         yield
 
         print("Stopping application...")
@@ -68,7 +72,7 @@ async def lifespan(app: FastAPI):
     await broker.shutdown()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title="Telegram Bot Gateway", lifespan=lifespan)
 
 
 @app.post("/webhook")

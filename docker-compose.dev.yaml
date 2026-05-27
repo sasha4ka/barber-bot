@@ -25,51 +25,69 @@ services:
       - bot_network
     restart: unless-stopped
 
-  web:
+  telegram-bot:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tg_bot_web
-    command: uvicorn book_bot.main:app --app-dir src/ --host 0.0.0.0 --port 8080
+    command: uvicorn book_bot.bot_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 8000
     environment:
+      - APP_MODE=bot
       - DB_NAME=bookbot
       - DB_USER=bookbot
       - DB_HOST=db
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_URL=redis://redis:6379/0
       - WEBHOOL_URL=
       - DEBUG=True
       - PROXY_URL=socks5://xray-proxy:10808
       - ADMIN_TG=${ADMIN_TG}
       - BOT_TOKEN=${BOT_TOKEN}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - db
       - redis
       - xray-proxy
-      - taskiq
     networks:
       - bot_network
     restart: unless-stopped
 
-  taskiq:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: taskiq
-    command: taskiq worker book_bot.tkq:broker --app-dir src/
+    command: uvicorn book_bot.api_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 9000
     environment:
+      - APP_MODE=api
       - DB_NAME=bookbot
       - DB_USER=bookbot
       - DB_HOST=db
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_URL=redis://redis:6379/0
-      - WEBHOOL_URL=
-      - DEBUG=False
+      - DEBUG=True
       - PROXY_URL=socks5://xray-proxy:10808
       - ADMIN_TG=${ADMIN_TG}
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+      - redis
+      - xray-proxy
+    networks:
+      - bot_network
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: taskiq worker book_bot.tkq:broker --app-dir src/
+    environment:
+      - APP_MODE=worker
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=False
+      - PROXY_URL=socks5://xray-proxy:10808
       - BOT_TOKEN=${BOT_TOKEN}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - redis
       - xray-proxy
