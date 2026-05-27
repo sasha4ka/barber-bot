@@ -19,16 +19,18 @@ async def generate_slots_for_date(
 ) -> list[Slot]:
     if not master_id:
         masters: list[Master] = await get_masters()
-        [
-            generate_slots_for_date(
+        slots = []
+        for master in masters:
+            results = await generate_slots_for_date(
                 target_date=target_date,
                 work_end=work_end,
                 work_start=work_start,
                 slot_duration_minutes=slot_duration_minutes,
                 master_id=master.id,
             )
-            for master in masters
-        ]
+            slots.extend(results)  # type: ignore
+        return slots  # type: ignore
+
     async with async_session() as session:
         existing_slots_query = select(Slot).where(Slot.date == target_date)
         existing_slots_result = await session.execute(existing_slots_query)
@@ -58,9 +60,16 @@ async def generate_slots_for_date(
         return new_slots
 
 
-async def get_slots(target_date: datetime.date) -> list[Slot]:
-    async with async_session() as session:
+async def get_slots(
+    target_date: datetime.date, master_id: Optional[int] = None
+) -> list[Slot]:
+    if master_id:
+        query = select(Slot).where(
+            Slot.date == target_date, Slot.master_id == master_id
+        )
+    else:
         query = select(Slot).where(Slot.date == target_date)
+    async with async_session() as session:
         result = await session.execute(query)
         slots = result.scalars()
         return sorted(list(slots), key=lambda slot: slot.time_start)

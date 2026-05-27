@@ -3,12 +3,10 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from book_bot.bot.general import appointment2text, ask_for_registration, server_error
-from book_bot.bot.keyboards import (
-    user_profile_keyboard,
-)
 from book_bot.bot.keyboards.main_menu import (
     CancelAppointment,
     cancel_appointment_keyboard,
+    user_profile_keyboard,
 )
 from book_bot.bot.middlewares import UserProfileCheckMiddleware
 from book_bot.bot.states import MainMenuStates
