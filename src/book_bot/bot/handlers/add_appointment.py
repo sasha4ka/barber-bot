@@ -40,6 +40,10 @@ async def choose_master(
     callback_data: MasterSelectionResult,
     state: FSMContext,
 ):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     master_id = callback_data.master_id
     await state.update_data(master_id=master_id)
 
@@ -63,6 +67,10 @@ async def choose_master(
 async def choose_slot(
     callback: types.CallbackQuery, callback_data: SlotSelectionResult, state: FSMContext
 ):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     slot_id = callback_data.slot_id
     await state.update_data(slot_id=slot_id)
 
@@ -87,6 +95,10 @@ async def choose_slot(
 
 @router.callback_query(CreateAppointmentStates.comfirm, F.data == "confirm")
 async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     data = await state.get_data()
 
     slot_id = data["slot_id"]
@@ -114,6 +126,10 @@ async def confirm_appointment(callback: types.CallbackQuery, state: FSMContext):
 
 
 async def cancel_appointment(callback: types.CallbackQuery, state: FSMContext):
+    if not callback.message or isinstance(callback.message, types.InaccessibleMessage):
+        await server_error(callback)
+        return
+
     await callback.answer()
     await state.clear()
     await callback.message.edit_text("Вы отменили запись")
