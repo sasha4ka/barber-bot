@@ -5,14 +5,32 @@ from sqlalchemy import select
 
 from book_bot.core.database import async_session
 from book_bot.models import Slot
+from book_bot.models.models import Master
+from book_bot.services.master import get_masters
 
 
 async def generate_slots_for_date(
+    *,
     target_date: datetime.date,
     work_start: datetime.time,
     work_end: datetime.time,
     slot_duration_minutes: int = 60,
+    master_id: Optional[int] = None,
 ) -> list[Slot]:
+    if not master_id:
+        masters: list[Master] = await get_masters()
+        slots = []
+        for master in masters:
+            results = await generate_slots_for_date(
+                target_date=target_date,
+                work_end=work_end,
+                work_start=work_start,
+                slot_duration_minutes=slot_duration_minutes,
+                master_id=master.id,
+            )
+            slots.extend(results)  # type: ignore
+        return slots  # type: ignore
+
     async with async_session() as session:
         existing_slots_query = select(Slot).where(Slot.date == target_date)
         existing_slots_result = await session.execute(existing_slots_query)
@@ -27,7 +45,10 @@ async def generate_slots_for_date(
 
         while current_datetime + step <= end_datetime:
             slot = Slot(
-                date=target_date, time_start=current_datetime.time(), is_booked=False
+                date=target_date,
+                time_start=current_datetime.time(),
+                is_booked=False,
+                master_id=master_id,
             )
             new_slots.append(slot)
             current_datetime += step
@@ -39,9 +60,16 @@ async def generate_slots_for_date(
         return new_slots
 
 
-async def get_slots(target_date: datetime.date) -> list[Slot]:
-    async with async_session() as session:
+async def get_slots(
+    target_date: datetime.date, master_id: Optional[int] = None
+) -> list[Slot]:
+    if master_id:
+        query = select(Slot).where(
+            Slot.date == target_date, Slot.master_id == master_id
+        )
+    else:
         query = select(Slot).where(Slot.date == target_date)
+    async with async_session() as session:
         result = await session.execute(query)
         slots = result.scalars()
         return sorted(list(slots), key=lambda slot: slot.time_start)

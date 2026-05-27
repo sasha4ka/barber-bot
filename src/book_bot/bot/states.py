@@ -10,9 +10,16 @@ class MainMenuStates(StatesGroup):
 
 
 class CreateAppointmentStates(StatesGroup):
+    select_master = State()
     select_slot = State()
     comfirm = State()
 
 
 class AdminPanelStates(StatesGroup):
     main_menu = State()
+
+
+class MasterCreationStates(StatesGroup):
+    get_name = State()
+    select_profile = State()
+    confirm = State()

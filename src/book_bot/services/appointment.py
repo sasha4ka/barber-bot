@@ -67,10 +67,11 @@ async def cancel_appointment(
     async with async_session() as session:
         query = (
             select(Appointment)
-            .join(Appointment.slot)
-            .join(Appointment.user)
             .where(Appointment.id == appointment_id)
-            .options(joinedload(Appointment.slot), joinedload(Appointment.user))
+            .options(
+                joinedload(Appointment.slot).joinedload(Slot.master),
+                joinedload(Appointment.user),
+            )
         )
         result = await session.execute(query)
         appointment = result.scalar_one_or_none()
@@ -92,10 +93,18 @@ async def cancel_appointment(
             await send_notification(
                 settings.ADMIN_TG,
                 (
-                    f"Пользователь {appointment.user.full_name}#{appointment.user.id} "
-                    f"отменил запись на {appointment.slot.time_start:%H:%M} номер {appointment_id}"
+                    f"Пользователь {appointment.user.full_name} #{appointment.user.id} "
+                    f"отменил запись на {appointment.slot.time_start:%H:%M} #{appointment_id}"
                 ),
             )
+            if appointment.slot.master.tg_id:
+                await send_notification(
+                    appointment.slot.master.tg_id,
+                    (
+                        f"Пользователь {appointment.user.full_name} #{appointment.user.id} "
+                        f"отменил запись на {appointment.slot.time_start:%H:%M} #{appointment_id}"
+                    ),
+                )
 
         return appointment
 
@@ -105,39 +114,32 @@ async def get_appointments(
     user_id: Optional[int] = None,
     start_date: Optional[datetime.date] = None,
     end_date: Optional[datetime.date] = None,
+    only_active: bool = True,
 ) -> List[Appointment]:
     """Returns list of appointments. If user_id specified: return user's appointments. \
 If start_date end end_date (By default equal to start_date) specified, \
 returns appointments in between start_date and end_date"""
+    if end_date and not start_date:
+        return []
+
     if start_date and not end_date:
         end_date = start_date
+
+    query = (
+        select(Appointment)
+        .join(Appointment.slot)
+        .options(joinedload(Appointment.slot).joinedload(Slot.master))
+        .order_by(Slot.date, Slot.time_start)
+    )
+
+    if start_date:
+        query = query.where(between(Slot.date, start_date, end_date))
+
     if user_id:
-        query = (
-            select(Appointment)
-            .where(Appointment.user_id == user_id)
-            .options(joinedload(Appointment.slot))
-        )
-    elif start_date:
-        query = (
-            select(Appointment)
-            .join(Appointment.slot)
-            .where(between(Slot.date, start_date, end_date))
-            .options(joinedload(Appointment.slot))
-            .order_by(Slot.date, Slot.time_start)
-        )
-    elif user_id and start_date:
-        query = (
-            select(Appointment)
-            .join(Appointment.slot)
-            .where(
-                between(Slot.date, start_date, end_date)
-                and Appointment.user_id == user_id
-            )
-            .options(joinedload(Appointment.slot))
-            .order_by(Slot.date, Slot.time_start)
-        )
-    else:
-        return []
+        query = query.where(Appointment.user_id == user_id)
+
+    if only_active:
+        query = query.where(Appointment.status == AppointmentStatus.ACTIVE)
 
     async with async_session() as session:
         results = await session.execute(query)

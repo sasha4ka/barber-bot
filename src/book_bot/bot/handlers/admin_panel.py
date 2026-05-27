@@ -8,11 +8,13 @@ from book_bot.bot.keyboards.admin_panel import (
     AdminPanelButtons,
     admin_panel_keyboard,
     ask_contact_keyboard,
+    create_master_keyboard,
 )
 from book_bot.bot.keyboards.main_menu import main_menu_keyboard
 from book_bot.bot.middlewares import IsAdminCheckMiddleware
 from book_bot.bot.states import AdminPanelStates
 from book_bot.models.models import User
+from book_bot.services.master import get_masters
 from book_bot.services.slot import generate_slots_for_date
 from book_bot.services.user import get_user, get_user_count
 
@@ -79,4 +81,15 @@ async def users_handler(message: types.Message, state: FSMContext):
     await message.answer(
         "Пожалуйста, поделитесь контактом пользователя.",
         reply_markup=ask_contact_keyboard(),
+    )
+
+
+@router.message(AdminPanelStates.main_menu, F.text == AdminPanelButtons.masters)
+async def print_masters(message: types.Message, state: FSMContext):
+    masters = await get_masters()
+    text = "<b>Список мастеров:</b>\n" + "\n".join(
+        [master.full_name for master in masters]
+    )
+    await message.answer(
+        text, reply_markup=create_master_keyboard(), parse_mode=ParseMode.HTML
     )
