@@ -6,7 +6,7 @@
         {
             "label": "run project",
             "type": "shell",
-            "command": "~/.local/bin/poetry run uvicorn book_bot.main:app --port 8080 --app-dir src/"
+            "command": "APP_MODE=bot ~/.local/bin/poetry run uvicorn book_bot.main:app --port 8000 --app-dir src/"
         }
     ]
 }

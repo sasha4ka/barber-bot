@@ -11,6 +11,7 @@ from redis.asyncio import Redis
 
 from book_bot.bot.handlers import router as base_router
 from book_bot.core.settings import settings
+from book_bot.services.notification import send_notification
 from book_bot.tkq import broker
 
 bot: Optional[Bot] = None
@@ -43,6 +44,7 @@ async def lifespan(app: FastAPI):
         await bot.delete_webhook(drop_pending_updates=True)
         polling_task = asyncio.create_task(dp.start_polling(bot))
 
+        await send_notification(settings.ADMIN_TG, "БОТ ЗАПУЩЕН")
         yield
 
         print("Stopping application...")
