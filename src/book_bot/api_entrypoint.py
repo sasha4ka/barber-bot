@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
-from book_bot.api.v1.endpoints.hello_world import router as hello_router
+from book_bot.api.v1 import router as v1_router
 from book_bot.core.settings import settings
 from book_bot.tkq import broker
 
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Web Panel", lifespan=lifespan)
 
-app.include_router(hello_router)
+app.include_router(v1_router)
 
 
 @app.get("/health")
