@@ -21,8 +21,6 @@ async def generate_slots_for_date(
     else:
         masters = [master.id for master in await get_masters()]
 
-    print(masters)
-
     async with async_session() as session:
         existing_slots_query = select(Slot).where(Slot.date == target_date)
         existing_slots_result = await session.execute(existing_slots_query)
@@ -55,18 +53,33 @@ async def generate_slots_for_date(
 
 
 async def get_slots(
-    target_date: datetime.date, master_id: Optional[int] = None
+    *,
+    start_date: Optional[datetime.date] = None,
+    end_date: Optional[datetime.date] = None,
+    master_id: Optional[int] = None,
 ) -> list[Slot]:
+    """Returns slots.
+If master_id: returns slots to specifies master
+If start_date and end_date (by default equal to start_date): \
+returns slots in between start_date and end_date"""
+    query = select(Slot).order_by(Slot.master_id, Slot.time_start)
+
+    if end_date and not start_date:
+        return []
+
+    if start_date and not end_date:
+        end_date = start_date
+
     if master_id:
-        query = select(Slot).where(
-            Slot.date == target_date, Slot.master_id == master_id
-        )
-    else:
-        query = select(Slot).where(Slot.date == target_date)
+        query = query.where(Slot.master_id == master_id)
+
+    if start_date:
+        query = query.where(Slot.date.between(start_date, end_date))
+
     async with async_session() as session:
         result = await session.execute(query)
         slots = result.scalars()
-        return sorted(list(slots), key=lambda slot: slot.time_start)
+        return list(slots)
 
 
 async def get_slot(slot_id: int) -> Optional[Slot]:

@@ -12,6 +12,17 @@ class ClientInfo(BaseModel):
     phone: str
 
 
+class AppointmentShortResponse(BaseModel):
+    id: int
+    user_id: int
+    slot_id: int
+    slot: SlotResponse
+    created_at: datetime.datetime
+    status: AppointmentStatus
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class AppointmentResponse(BaseModel):
     id: int
     user_id: int
