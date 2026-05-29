@@ -52,7 +52,7 @@ async def choose_master(
         raise InternalError
 
     target_date = datetime.datetime.now().date()
-    slots = await get_slots(target_date=target_date, master_id=master_id)
+    slots = await get_slots(start_date=target_date, master_id=master_id)
     keyboard = get_slots_keyboard(slots)
 
     await callback.message.edit_text("Выберите время записи:", reply_markup=keyboard)

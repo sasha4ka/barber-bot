@@ -4,9 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "run project",
+            "label": "run api",
             "type": "shell",
-            "command": "APP_MODE=bot ~/.local/bin/poetry run uvicorn book_bot.main:app --port 8000 --app-dir src/"
+            "command": "APP_MODE=api ~/.local/bin/poetry run uvicorn book_bot.api_entrypoint:app --port 9000 --app-dir src/"
+        },
+        {
+            "label": "run bot",
+            "type": "shell",
+            "command": "APP_MODE=bot ~/.local/bin/poetry run uvicorn book_bot.bot_entrypoint:app --port 8000 --app-dir src/"
         }
     ]
 }

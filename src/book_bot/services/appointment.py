@@ -11,6 +11,14 @@ from book_bot.models import Appointment, AppointmentStatus, Slot
 from book_bot.services.notification import send_notification
 
 
+class SlotAlreadyBookedException(Exception):
+    pass
+
+
+class SlotNotFoundException(Exception):
+    pass
+
+
 class CanceledBy(str, Enum):
     CLIENT = "client"
     ADMIN = "admin"
@@ -114,11 +122,13 @@ async def get_appointments(
     user_id: Optional[int] = None,
     start_date: Optional[datetime.date] = None,
     end_date: Optional[datetime.date] = None,
+    master_id: Optional[int] = None,
     only_active: bool = True,
 ) -> List[Appointment]:
     """Returns list of appointments. If user_id specified: return user's appointments. \
 If start_date end end_date (By default equal to start_date) specified, \
-returns appointments in between start_date and end_date"""
+returns appointments in between start_date and end_date. If master_id \
+specified, returns appointments to specified master"""
     if end_date and not start_date:
         return []
 
@@ -141,6 +151,81 @@ returns appointments in between start_date and end_date"""
     if only_active:
         query = query.where(Appointment.status == AppointmentStatus.ACTIVE)
 
+    if master_id:
+        query = query.where(Slot.master_id == master_id)
+
     async with async_session() as session:
         results = await session.execute(query)
         return list(results.scalars().all())
+
+
+async def get_appointment(appointment_id: int) -> Optional[Appointment]:
+    async with async_session() as session:
+        query = (
+            select(Appointment)
+            .where(Appointment.id == appointment_id)
+            .options(joinedload(Appointment.slot), joinedload(Appointment.user))
+        )
+        return (await session.execute(query)).scalar_one_or_none()
+
+
+async def reschedule_appointment(
+    appointment_id: int, new_slot_id: int, by: CanceledBy = CanceledBy.CLIENT
+) -> Optional[Appointment]:
+    async with async_session() as session:
+        appointment_query = (
+            select(Appointment)
+            .where(Appointment.id == appointment_id)
+            .options(
+                joinedload(Appointment.slot),
+                joinedload(Appointment.user),
+            )
+        )
+        appointment = (await session.execute(appointment_query)).scalar_one_or_none()
+        if not appointment:
+            return
+        old_time = appointment.slot.time_start
+
+        query = select(Slot).where(Slot.id == new_slot_id)
+        new_slot = (await session.execute(query)).scalar_one_or_none()
+        if not new_slot:
+            raise SlotNotFoundException
+
+        if new_slot.is_booked:
+            raise SlotAlreadyBookedException
+
+        appointment.slot.is_booked = False
+        appointment.slot = new_slot
+        appointment.slot_id = new_slot_id
+        new_slot.is_booked = True
+
+        await session.commit()
+        await session.refresh(appointment)
+
+    if by == CanceledBy.ADMIN:
+        await send_notification(
+            appointment.user.tg_id,
+            (
+                f"Ваша запись на {old_time:%H:%M} была перенесена "
+                f"на {appointment.slot.time_start:%H:%M} администратором"
+            ),
+        )
+    elif by == CanceledBy.CLIENT:
+        await send_notification(
+            appointment.user.tg_id,
+            (
+                f"Пользователь {appointment.user.full_name} #{appointment.user.id} "
+                f"перенес запись #{appointment_id} с {old_time:%H:%M} "
+                f"на {appointment.slot.time_start:%H:%M}"
+            ),
+        )
+        await send_notification(
+            settings.ADMIN_TG,
+            (
+                f"Пользователь {appointment.user.full_name} #{appointment.user.id} "
+                f"перенес запись #{appointment_id} с {old_time:%H:%M} "
+                f"на {appointment.slot.time_start:%H:%M}"
+            ),
+        )
+
+    return appointment
