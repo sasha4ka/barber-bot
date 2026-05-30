@@ -14,12 +14,10 @@ COPY libs/core_shared/ /app/libs/core_shared/
 
 COPY pyproject.toml /app/pyproject.toml
 
-COPY apps/bot/ /app/apps/bot/
+COPY apps/notification_service/ /app/apps/notification_service/
 
-RUN uv pip install --system --no-cache -e /app/libs/core_shared -e /app/apps/bot
+RUN uv pip install --system --no-cache -e /app/libs/core_shared -e /app/apps/notification_service
 
 RUN apk del gcc musl-dev
 
-EXPOSE 8000
-
-CMD ["python", "-m", "bot.main"]
+CMD ["python", "-m", "notification_service.main"]

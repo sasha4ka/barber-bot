@@ -89,17 +89,16 @@ services:
     networks:
       - bot_network
 
-  worker:
+  notification_service:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: taskiq worker book_bot.tkq:broker --app-dir src/
+      dockerfile: apps/notification_service/Dockerfile
     environment:
+      - BOT_TOKEN=${BOT_TOKEN}
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - PROXY_URL=socks5://xray-proxy:10808
-      - BOT_TOKEN=${BOT_TOKEN}
     depends_on:
-      - redis
+      - rabbitmq
       - xray-proxy
     networks:
       - bot_network
