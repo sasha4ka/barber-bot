@@ -18,7 +18,7 @@ core-shared = { workspace = true }
 packages = ["src/bot"]
 
 [project.scripts]
-bot = "bot.main:cli"
+run-bot = "bot.main:cli"
 
 [build-system]
 requires = ["hatchling"]

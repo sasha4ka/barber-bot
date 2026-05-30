@@ -41,32 +41,57 @@ services:
       - bot_network
     restart: unless-stopped
 
-  telegram-bot:
+  # telegram-bot:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: uvicorn book_bot.bot_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 8000
+  #   environment:
+  #     - APP_MODE=bot
+  #     - DB_NAME=bookbot
+  #     - DB_USER=bookbot
+  #     - DB_HOST=db
+  #     - DB_PASSWORD=${POSTGRES_PASSWORD}
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - WEBHOOK_URL=
+  #     - DEBUG=True
+  #     - PROXY_URL=socks5://xray-proxy:10808
+  #     - ADMIN_TG=${ADMIN_TG}
+  #     - BOT_TOKEN=${BOT_TOKEN}
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - xray-proxy
+  #   networks:
+  #     - bot_network
+  #   restart: unless-stopped
+  bot:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: uvicorn book_bot.bot_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 8000
-    environment:
-      - APP_MODE=bot
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_URL=redis://redis:6379/0
-      - WEBHOOK_URL=
-      - DEBUG=True
-      - PROXY_URL=socks5://xray-proxy:10808
-      - ADMIN_TG=${ADMIN_TG}
-      - BOT_TOKEN=${BOT_TOKEN}
-    ports:
-      - "8000:8000"
+      dockerfile: apps/bot/Dockerfile
+    restart: unless-stopped
     depends_on:
       - db
       - redis
       - xray-proxy
+      - rabbitmq
     networks:
       - bot_network
-    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBHOOK_URL=
+      - PROXY_URL=socks5://xray-proxy:10808
+      - REDIS_URL=redis://redis:6379/0
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - ADMIN_TG=${ADMIN_TG}
+      - DEBUG=True
+      - DB_NAME=bookbot
+      - DB_USER=bookbot
+      - DB_HOST=db
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_PORT=5432
 
   api:
     build:
