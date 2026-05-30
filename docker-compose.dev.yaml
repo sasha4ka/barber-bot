@@ -10,6 +10,22 @@ services:
       - bot_network
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bookbot_rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_NODENAME: rabbit@rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - bot_network
+
   db:
     image: postgres:latest
     container_name: db
@@ -37,7 +53,7 @@ services:
       - DB_HOST=db
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_URL=redis://redis:6379/0
-      - WEBHOOL_URL=
+      - WEBHOOK_URL=
       - DEBUG=True
       - PROXY_URL=socks5://xray-proxy:10808
       - ADMIN_TG=${ADMIN_TG}
@@ -83,9 +99,7 @@ services:
       dockerfile: Dockerfile
     command: taskiq worker book_bot.tkq:broker --app-dir src/
     environment:
-      - APP_MODE=worker
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=False
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - PROXY_URL=socks5://xray-proxy:10808
       - BOT_TOKEN=${BOT_TOKEN}
     depends_on:
@@ -111,6 +125,7 @@ volumes:
   pd-data:
   redis-data:
   xray-config:
+  rabbitmq_data:
 
 networks:
   bot_network:

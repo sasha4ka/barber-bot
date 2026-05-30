@@ -1,0 +1,26 @@
+[project]
+name = "bot"
+version = "0.1.0"
+requires-python = "==3.14.*"
+dependencies = [
+    "aiogram>=3.28.2,<4.0.0",
+    "pydantic-settings>=2.14.1,<3.0.0",
+    "redis>=7.0.0,<8",
+    "aio-pika>=9.6.2,<10.0.0",
+    "aiohttp-socks>=0.11.0,<1.0.0",
+    "core-shared"
+]
+
+[tool.uv.sources]
+core-shared = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bot"]
+
+[project.scripts]
+bot = "bot.main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
