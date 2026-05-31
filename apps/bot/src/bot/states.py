@@ -12,7 +12,13 @@ class MainMenuStates(StatesGroup):
 class CreateAppointmentStates(StatesGroup):
     select_master = State()
     select_slot = State()
-    comfirm = State()
+    confirm = State()
+
+
+class RescheduleAppointmentStates(StatesGroup):
+    select_master = State()
+    select_slot = State()
+    confirm = State()
 
 
 class AdminPanelStates(StatesGroup):

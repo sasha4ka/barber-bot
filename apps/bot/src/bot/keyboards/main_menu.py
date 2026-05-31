@@ -12,6 +12,10 @@ class CancelAppointment(CallbackData, prefix="cancel-appointment"):
     appointment_id: int
 
 
+class RescheduleAppointment(CallbackData, prefix="reschedule-appointment"):
+    appointment_id: int
+
+
 def main_menu_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
@@ -48,13 +52,17 @@ def user_profile_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def cancel_appointment_keyboard(appointment_id: int) -> InlineKeyboardMarkup:
+def appointment_keyboard(appointment_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.add(
         InlineKeyboardButton(
             text="❌Отменить",
             callback_data=CancelAppointment(appointment_id=appointment_id).pack(),
-        )
+        ),
+        InlineKeyboardButton(
+            text="🔄Перенести",
+            callback_data=RescheduleAppointment(appointment_id=appointment_id).pack(),
+        ),
     )
     return builder.as_markup()
