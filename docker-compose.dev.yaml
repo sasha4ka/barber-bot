@@ -10,6 +10,22 @@ services:
       - bot_network
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bookbot_rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_NODENAME: rabbit@rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - bot_network
+
   db:
     image: postgres:latest
     container_name: db
@@ -25,71 +41,56 @@ services:
       - bot_network
     restart: unless-stopped
 
-  telegram-bot:
+  bot:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: uvicorn book_bot.bot_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 8000
-    environment:
-      - APP_MODE=bot
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_URL=redis://redis:6379/0
-      - WEBHOOL_URL=
-      - DEBUG=True
-      - PROXY_URL=socks5://xray-proxy:10808
-      - ADMIN_TG=${ADMIN_TG}
-      - BOT_TOKEN=${BOT_TOKEN}
-    ports:
-      - "8000:8000"
+      dockerfile: apps/bot/Dockerfile
+    restart: unless-stopped
     depends_on:
       - db
       - redis
       - xray-proxy
+      - rabbitmq
+    ports:
+      - "8000:8000"
     networks:
       - bot_network
-    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBHOOK_URL=
+      - ADMIN_TG=${ADMIN_TG}
+      - DEBUG=True
+      - PROXY_URL=socks5://xray-proxy:10808
+      - REDIS_URL=redis://redis:6379/0
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: uvicorn book_bot.api_entrypoint:app --app-dir src/ --host 0.0.0.0 --port 9000
-    environment:
-      - APP_MODE=api
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=True
-      - PROXY_URL=socks5://xray-proxy:10808
-      - ADMIN_TG=${ADMIN_TG}
-    ports:
-      - "9000:9000"
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
     depends_on:
       - db
-      - redis
-      - xray-proxy
+      - rabbitmq
+    ports:
+      - "9000:9000"
     networks:
       - bot_network
-    restart: unless-stopped
+    environment:
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
-  worker:
+  notification_service:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: taskiq worker book_bot.tkq:broker --app-dir src/
+      dockerfile: apps/notification_service/Dockerfile
     environment:
-      - APP_MODE=worker
-      - REDIS_URL=redis://redis:6379/0
-      - DEBUG=False
-      - PROXY_URL=socks5://xray-proxy:10808
       - BOT_TOKEN=${BOT_TOKEN}
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - PROXY_URL=socks5://xray-proxy:10808
     depends_on:
-      - redis
+      - rabbitmq
       - xray-proxy
     networks:
       - bot_network
@@ -111,6 +112,7 @@ volumes:
   pd-data:
   redis-data:
   xray-config:
+  rabbitmq_data:
 
 networks:
   bot_network:
