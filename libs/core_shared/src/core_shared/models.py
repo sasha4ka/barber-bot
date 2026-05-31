@@ -57,7 +57,9 @@ class Slot(Base):
     )
 
     master: Mapped["Master"] = relationship(back_populates="slots")
-    appointment: Mapped["Appointment"] = relationship(back_populates="slot")
+    appointments: Mapped[list["Appointment"]] = relationship(
+        "Appointment", back_populates="slot", cascade="all, delete-orphan"
+    )
 
 
 class Appointment(Base):
@@ -78,4 +80,4 @@ class Appointment(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="appointments")
-    slot: Mapped["Slot"] = relationship(back_populates="appointment")
+    slot: Mapped["Slot"] = relationship(back_populates="appointments")
