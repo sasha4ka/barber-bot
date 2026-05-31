@@ -37,7 +37,7 @@ def get_master_keyboard(masters: list[Master]) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_slots_keyboard(slots: list[Slot]) -> InlineKeyboardMarkup:
+def select_slot_keyboard(slots: list[Slot]) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     for slot in slots:

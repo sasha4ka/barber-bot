@@ -1,21 +1,20 @@
 from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
-from core_shared import AsyncSession
-from core_shared.models import AppointmentStatus, User
-from core_shared.services.appointment import cancel_appointment, get_appointments
-from core_shared.services.user import delete_user
-
 from bot.core.database import db
 from bot.core.exceptions import InternalError
 from bot.general import appointment2text, ask_for_registration
 from bot.keyboards.main_menu import (
     CancelAppointment,
-    cancel_appointment_keyboard,
+    appointment_keyboard,
     user_profile_keyboard,
 )
 from bot.middlewares import UserProfileCheckMiddleware
 from bot.states import MainMenuStates
+from core_shared import AsyncSession
+from core_shared.models import AppointmentStatus, User
+from core_shared.services.appointment import cancel_appointment, get_appointments
+from core_shared.services.user import delete_user
 
 router = Router()
 router.message.middleware(UserProfileCheckMiddleware(db))
@@ -73,7 +72,7 @@ async def show_appointments(message: types.Message, user: User, session: AsyncSe
 
     for appointment in appointments:
         markup = (
-            cancel_appointment_keyboard(appointment.id)
+            appointment_keyboard(appointment.id)
             if appointment.status == AppointmentStatus.ACTIVE
             else None
         )
