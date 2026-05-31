@@ -73,13 +73,13 @@ services:
     depends_on:
       - db
       - rabbitmq
-    environment:
-      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
-      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
     ports:
       - "9000:9000"
     networks:
       - bot_network
+    environment:
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   notification_service:
     build:
