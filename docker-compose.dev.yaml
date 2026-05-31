@@ -58,16 +58,12 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - WEBHOOK_URL=
+      - ADMIN_TG=${ADMIN_TG}
+      - DEBUG=True
       - PROXY_URL=socks5://xray-proxy:10808
       - REDIS_URL=redis://redis:6379/0
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
-      - ADMIN_TG=${ADMIN_TG}
-      - DEBUG=True
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_PORT=5432
+      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   api:
     build:
@@ -79,11 +75,7 @@ services:
       - rabbitmq
     environment:
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
-      - DB_NAME=bookbot
-      - DB_USER=bookbot
-      - DB_HOST=db
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_PORT=5432
+      - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
     ports:
       - "9000:9000"
     networks:
