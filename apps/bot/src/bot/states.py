@@ -28,4 +28,5 @@ class AdminPanelStates(StatesGroup):
 class MasterCreationStates(StatesGroup):
     get_name = State()
     select_profile = State()
+    waiting_for_password = State()
     confirm = State()
