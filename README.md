@@ -9,33 +9,26 @@
 
 ## 2. Архитектура
 ```mermaid
-flowchart LR
+flowchart TD
   Candy["1. Candy<br/>reverse proxy"]
-  PostgresDB["5. Postgres DB"]
-  Redis["6. Redis"]
-  RabbitMQ["7. RabbitMQ"]
 
   subgraph Services["Application Services"]
+    direction LR
     Notification["2. Notification<br/>notification service"]
     API["3. API<br/>RESTFul API"]
     Bot["4. Bot<br/>telegram bot"]
   end
 
-  Candy --> API
-  Candy --> Bot
+  RabbitMQ["5. RabbitMQ"]
+  PostgresDB[("6. Postgres DB")]
+  Redis[("7. Redis")]
+
+  Candy --> Services
+  Services <-.-> RabbitMQ
   
-  API <-.-> RabbitMQ
-  Bot <-.-> RabbitMQ
-  Notification <-.-> RabbitMQ
-  
-  Bot ~~~ RabbitMQ
-  
-  Notification --> PostgresDB
-  API --> PostgresDB
-  Bot --> PostgresDB
-  
+  Services --> PostgresDB
   Bot --> Redis
-  
+
   classDef subgraphClass stroke-opacity:0.5
   class Services subgraphClass
 ```
