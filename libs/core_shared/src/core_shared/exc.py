@@ -8,3 +8,11 @@ class SlotNotFoundException(Exception):
 
 class UserNotFound(Exception):
     pass
+
+
+class JWTAuthenticationError(Exception):
+    pass
+
+
+class PasswordAuthenticationError(Exception):
+    pass

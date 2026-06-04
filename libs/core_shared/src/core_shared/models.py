@@ -38,6 +38,14 @@ class Master(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     tg_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True, nullable=True)
+
+    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    token_version: Mapped[int] = mapped_column(default=0, server_default="0")
+
+    is_admin: Mapped[bool] = mapped_column(
+        nullable=False, default=False, server_default="false"
+    )
     full_name: Mapped[str] = mapped_column(String(64))
 
     slots: Mapped[list["Slot"]] = relationship(
