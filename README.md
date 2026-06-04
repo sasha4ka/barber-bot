@@ -31,19 +31,7 @@ flowchart LR
   Bot --> PostgresDB
   
   Bot --> Redis
-
-  classDef proxyClass stroke:#818cf8,fill:#eef2ff
-  classDef serviceClass stroke:#2dd4bf,fill:#f0fdfa
-  classDef storageClass stroke:#fb923c,fill:#fff7ed
-  classDef cacheClass stroke:#e879f9,fill:#fdf4ff
-  classDef queueClass stroke:#a78bfa,fill:#f5f3ff
-  classDef subgraphClass stroke:#2dd4bf,fill:#f0fdfa,stroke-opacity:0.5
-
-  class Candy proxyClass
-  class Notification,API,Bot serviceClass
-  class PostgresDB storageClass
-  class Redis cacheClass
-  class RabbitMQ queueClass
+  classDef subgraphClass stroke-opacity:0.5
   class Services subgraphClass
 ```
 
