@@ -8,6 +8,7 @@
 - Отправка уведомлений пользователям для напоминания об активных записях, предупреждений о переносе записи
 
 ## 2. Архитектура
+```mermaid
 flowchart LR
   Candy["1. Candy<br/>reverse proxy"]
   PostgresDB["5. Postgres DB"]
@@ -44,6 +45,7 @@ flowchart LR
   class Redis cacheClass
   class RabbitMQ queueClass
   class Services subgraphClass
+```
 
 ## 3. Структура проекта
 ```
