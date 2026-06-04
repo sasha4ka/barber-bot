@@ -24,13 +24,18 @@ flowchart LR
   Candy --> API
   Candy --> Bot
   
-  Services <-.-> RabbitMQ
+  API <-.-> RabbitMQ
+  Bot <-.-> RabbitMQ
+  Notification <-.-> RabbitMQ
+  
+  Bot ~~~ RabbitMQ
   
   Notification --> PostgresDB
   API --> PostgresDB
   Bot --> PostgresDB
   
   Bot --> Redis
+  
   classDef subgraphClass stroke-opacity:0.5
   class Services subgraphClass
 ```
