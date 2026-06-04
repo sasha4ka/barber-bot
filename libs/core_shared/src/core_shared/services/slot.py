@@ -1,11 +1,12 @@
 import datetime
 from typing import Optional
 
-from core_shared.models import Slot
-from core_shared.services.master import get_masters
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
+
+from core_shared.models import Slot
+from core_shared.services.master import get_masters
 
 
 async def generate_slots_for_date(

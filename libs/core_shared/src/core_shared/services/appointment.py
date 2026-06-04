@@ -2,12 +2,13 @@ import datetime
 from enum import Enum
 from typing import List, Optional
 
-from core_shared.exc import SlotAlreadyBookedException, SlotNotFoundException
-from core_shared.models import Appointment, AppointmentStatus, Slot
-from core_shared.services.notification import get_notification_service
 from sqlalchemy import between, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
+
+from core_shared.exc import SlotAlreadyBookedException, SlotNotFoundException
+from core_shared.models import Appointment, AppointmentStatus, Slot
+from core_shared.services.notification import get_notification_service
 
 
 class ActionBy(str, Enum):

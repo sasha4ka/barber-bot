@@ -6,6 +6,7 @@ from aio_pika.abc import AbstractIncomingMessage
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
+
 from notification_service.settings import settings
 
 bot: Bot | None = None

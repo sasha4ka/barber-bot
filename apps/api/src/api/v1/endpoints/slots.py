@@ -1,12 +1,13 @@
 import datetime
 from typing import Optional
 
-from api.dependencies import async_session, get_admin, get_current_master
-from api.v1.schemas.slot import GenerateSlotsRequest, SlotResponse
 from core_shared import AsyncSession
 from core_shared.models import Master
 from core_shared.services.slot import generate_slots_for_date, get_slots
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+from api.dependencies import async_session, get_admin, get_current_master
+from api.v1.schemas.slot import GenerateSlotsRequest, SlotResponse
 
 router = APIRouter(prefix="/slots")
 

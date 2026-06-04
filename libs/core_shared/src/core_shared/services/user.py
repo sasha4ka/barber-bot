@@ -1,9 +1,10 @@
 from typing import Optional
 
-from core_shared.exc import UserNotFound
-from core_shared.models import User
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from core_shared.exc import UserNotFound
+from core_shared.models import User
 
 
 async def create_user(

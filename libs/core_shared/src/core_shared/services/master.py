@@ -3,10 +3,11 @@ from typing import Optional
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from core_shared.exc import PasswordAuthenticationError
-from core_shared.models import Master
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from core_shared.exc import PasswordAuthenticationError
+from core_shared.models import Master
 
 
 class MasterNotFoundError(Exception):

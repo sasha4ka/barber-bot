@@ -1,6 +1,11 @@
 from aiogram import F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
+from core_shared import AsyncSession
+from core_shared.models import AppointmentStatus, User
+from core_shared.services.appointment import cancel_appointment, get_appointments
+from core_shared.services.user import delete_user
+
 from bot.core.database import db
 from bot.core.exceptions import InternalError
 from bot.general import appointment2text, ask_for_registration
@@ -11,10 +16,6 @@ from bot.keyboards.main_menu import (
 )
 from bot.middlewares import UserProfileCheckMiddleware
 from bot.states import MainMenuStates
-from core_shared import AsyncSession
-from core_shared.models import AppointmentStatus, User
-from core_shared.services.appointment import cancel_appointment, get_appointments
-from core_shared.services.user import delete_user
 
 router = Router()
 router.message.middleware(UserProfileCheckMiddleware(db))

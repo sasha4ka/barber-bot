@@ -1,5 +1,8 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
+from core_shared import AsyncSession
+from core_shared.services.master import create_master
+
 from bot.core.database import db
 from bot.core.exceptions import InternalError
 from bot.keyboards.admin_panel import (
@@ -10,8 +13,6 @@ from bot.keyboards.admin_panel import (
 from bot.keyboards.general import cancel_keyboard, confirm_keyboard
 from bot.middlewares import IsAdminCheckMiddleware
 from bot.states import AdminPanelStates, MasterCreationStates
-from core_shared import AsyncSession
-from core_shared.services.master import create_master
 
 router = Router()
 router.message.middleware(IsAdminCheckMiddleware(db))

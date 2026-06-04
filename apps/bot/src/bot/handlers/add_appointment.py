@@ -2,6 +2,12 @@ import datetime
 
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
+from core_shared import AsyncSession
+from core_shared.models import User
+from core_shared.services.appointment import create_appointment
+from core_shared.services.master import get_master, get_masters
+from core_shared.services.slot import get_slot, get_slots
+
 from bot.core.database import db
 from bot.core.exceptions import InternalError
 from bot.keyboards.appointment import (
@@ -13,11 +19,6 @@ from bot.keyboards.appointment import (
 from bot.keyboards.general import confirm_keyboard
 from bot.middlewares import UserProfileCheckMiddleware
 from bot.states import CreateAppointmentStates
-from core_shared import AsyncSession
-from core_shared.models import User
-from core_shared.services.appointment import create_appointment
-from core_shared.services.master import get_master, get_masters
-from core_shared.services.slot import get_slot, get_slots
 
 router = Router()
 router.message.middleware(UserProfileCheckMiddleware(db))

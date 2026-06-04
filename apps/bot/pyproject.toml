@@ -17,6 +17,9 @@ core-shared = { workspace = true }
 [tool.hatch.build.targets.wheel]
 packages = ["src/bot"]
 
+[tool.ruff]
+src = ["src/"]
+
 [project.scripts]
 run-bot = "bot.main:cli"
 

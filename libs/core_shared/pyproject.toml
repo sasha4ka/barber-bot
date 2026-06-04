@@ -15,6 +15,10 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/core_shared"]
 
+[tool.ruff]
+src = ["src/"]
+exclude = ["migrations"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

@@ -1,10 +1,11 @@
-from api.authenticator import JWTAuthenticator, get_jwt_authenticator
-from api.dependencies import async_session
-from api.v1.schemas.master import MasterLoginRequest, MasterLoginResponse
 from core_shared import AsyncSession
 from core_shared.exc import PasswordAuthenticationError
 from core_shared.services.master import validate_master
 from fastapi import APIRouter, Depends, HTTPException
+
+from api.authenticator import JWTAuthenticator, get_jwt_authenticator
+from api.dependencies import async_session
+from api.v1.schemas.master import MasterLoginRequest, MasterLoginResponse
 
 router = APIRouter(prefix="/masters")
 

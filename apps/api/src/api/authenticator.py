@@ -1,6 +1,7 @@
+from core_shared.security import JWTAuthenticator
+
 from api.database import db
 from api.settings import settings
-from core_shared.security import JWTAuthenticator
 
 _authenticator: JWTAuthenticator | None = None
 

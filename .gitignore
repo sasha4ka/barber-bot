@@ -220,5 +220,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 .env
-dev-config/*.env
+
 .vscode/
+!.vscode/extensions.json
+!.vscode/settings.json

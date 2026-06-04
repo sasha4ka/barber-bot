@@ -1,0 +1,19 @@
+{
+    "python.analysis.extraPaths": [
+        "apps/api/src",
+        "apps/bot/src",
+        "apps/notification_service/src",
+        "libs/core_shared/src"
+    ],
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit",
+            "source.fixAll.ruff": "explicit"
+        },
+    },
+
+    "ruff.importStrategy": "fromEnvironment",
+
+    "ruff.nativeServer": true
+}

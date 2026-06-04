@@ -12,6 +12,9 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/notification_service"]
 
+[tool.ruff]
+src = ["src/"]
+
 [project.scripts]
 notification-service = "notification_service.main:cli"
 

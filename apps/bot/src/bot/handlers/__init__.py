@@ -1,4 +1,5 @@
 from aiogram import Router, types
+
 from bot.core.database import db
 from bot.core.exceptions import InternalError
 from bot.handlers.add_appointment import router as add_appointment_router

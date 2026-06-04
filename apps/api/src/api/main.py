@@ -1,10 +1,11 @@
 from contextlib import asynccontextmanager
 
+from core_shared.services.notification import init_notification_service
+from fastapi import FastAPI
+
 from api.authenticator import init_jwt_authenticator
 from api.settings import settings
 from api.v1 import router as v1_router
-from core_shared.services.notification import init_notification_service
-from fastapi import FastAPI
 
 
 @asynccontextmanager

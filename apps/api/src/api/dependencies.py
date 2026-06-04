@@ -1,10 +1,11 @@
-from api.authenticator import get_jwt_authenticator
-from api.database import db
 from core_shared.exc import JWTAuthenticationError
 from core_shared.models import Master
 from core_shared.security import JWTAuthenticator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from api.authenticator import get_jwt_authenticator
+from api.database import db
 
 header = HTTPBearer()
 

@@ -1,13 +1,6 @@
 import datetime
 from typing import List, Optional
 
-from api.dependencies import async_session, get_admin, get_current_master
-from api.v1.schemas.appointment import (
-    AppointmentResponse,
-    AppointmentShortResponse,
-    RescheduleAppointmentRequest,
-    UpdateAppointmentStatusRequest,
-)
 from core_shared import AsyncSession
 from core_shared.exc import SlotAlreadyBookedException, SlotNotFoundException
 from core_shared.models import Master
@@ -22,6 +15,14 @@ from core_shared.services.appointment import (
 from core_shared.services.slot import get_slot
 from fastapi import Depends, HTTPException, Query
 from fastapi.routing import APIRouter
+
+from api.dependencies import async_session, get_admin, get_current_master
+from api.v1.schemas.appointment import (
+    AppointmentResponse,
+    AppointmentShortResponse,
+    RescheduleAppointmentRequest,
+    UpdateAppointmentStatusRequest,
+)
 
 router = APIRouter(prefix="/appointments")
 

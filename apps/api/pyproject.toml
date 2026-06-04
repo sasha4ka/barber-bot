@@ -16,6 +16,9 @@ core-shared = { workspace = true }
 [tool.hatch.build.targets.wheel]
 packages = ["src/api"]
 
+[tool.ruff]
+src = ["src/"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

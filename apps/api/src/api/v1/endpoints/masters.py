@@ -1,9 +1,3 @@
-from api.dependencies import async_session, get_admin, get_current_master
-from api.v1.schemas.master import (
-    CreateMasterRequest,
-    MasterResponse,
-    UpdateMasterPasswordRequest,
-)
 from core_shared import AsyncSession
 from core_shared.models import Master
 from core_shared.services.master import (
@@ -12,6 +6,13 @@ from core_shared.services.master import (
     update_master_password,
 )
 from fastapi import APIRouter, Depends
+
+from api.dependencies import async_session, get_admin, get_current_master
+from api.v1.schemas.master import (
+    CreateMasterRequest,
+    MasterResponse,
+    UpdateMasterPasswordRequest,
+)
 
 router = APIRouter(prefix="/masters")
 
