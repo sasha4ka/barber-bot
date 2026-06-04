@@ -16,7 +16,7 @@ packages = ["src/notification_service"]
 src = ["src/"]
 
 [project.scripts]
-notification-service = "notification_service.main:cli"
+run-notification-service = "notification_service.main:cli"
 
 [build-system]
 requires = ["hatchling"]
