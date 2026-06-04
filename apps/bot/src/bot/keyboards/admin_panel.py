@@ -24,6 +24,8 @@ def admin_panel_keyboard() -> ReplyKeyboardMarkup:
     builder.row(
         KeyboardButton(text=AdminPanelButtons.users.value),
         KeyboardButton(text=AdminPanelButtons.records.value),
+    )
+    builder.row(
         KeyboardButton(text=AdminPanelButtons.masters.value),
         KeyboardButton(text=AdminPanelButtons.generate_slots.value),
     )
@@ -41,6 +43,13 @@ def create_master_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup(resize_keyboard=True)
 
 
+def cancel_master_name_entering_keyboard() -> ReplyKeyboardMarkup:
+    builder = ReplyKeyboardBuilder()
+
+    builder.row(KeyboardButton(text="Отменить"))
+    return builder.as_markup(resize_keyboard=True)
+
+
 def get_master_profile_keyboard() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 
@@ -49,7 +58,7 @@ def get_master_profile_keyboard() -> ReplyKeyboardMarkup:
             text="Поделиться контактом",
             request_users=KeyboardButtonRequestUsers(request_id=1, user_is_bot=False),
         ),
-        KeyboardButton(text="Не привязывать профиль"),
+        KeyboardButton(text="Отменить"),
     )
     return builder.as_markup(resize_keyboard=True)
 
