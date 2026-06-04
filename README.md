@@ -48,7 +48,7 @@ flowchart TD
 ```
 
 ## 4. Технологический стек
-1. *Языки/Фреймворки:* Python 3.14, FastAPI, SQLAlchemy 2.x, aiogram 3.x
+1. *Языки/Фреймворки:* Python 3.14, FastAPI, pydantic, SQLAlchemy 2.x + alembic, aiogram 3.x
 1. *Пакетный менеджер, линтеры:* uv, ruff
 1. *Базы данных:* PostgresSQL, Redis (aiogram FSM)
 1. *Инфраструктура:* Docker, Docker Compose, Github Actions (CI/CD)
