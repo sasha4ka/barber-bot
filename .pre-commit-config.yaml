@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Используйте актуальную версию Ruff
+    rev: v0.9.0
+    hooks:
+      # Хук для проверки кода и автоматического исправления (включая сортировку импортов)
+      - id: ruff
+        args: [ --fix ]
+      # Хук для форматирования кода (замена black)
+      - id: ruff-format

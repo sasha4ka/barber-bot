@@ -25,11 +25,6 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - bot_network
-    healthcheck:
-      test: ["CMD-SHELL", "rabbitmqctl -n rabbit@rabbitmq status || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   db:
     image: postgres:latest
@@ -52,9 +47,7 @@ services:
     restart: unless-stopped
 
   migrations:
-    build:
-      context: .
-      dockerfile: libs/core_shared/migrations.Dockerfile
+    image: ghcr.io/sasha4ka/bookbot-migrations:latest
     depends_on:
       db:
         condition: service_healthy
@@ -64,9 +57,7 @@ services:
       - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   bot:
-    build:
-      context: .
-      dockerfile: apps/bot/Dockerfile
+    image: ghcr.io/sasha4ka/barber-bot:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -85,18 +76,16 @@ services:
       - bot_network
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
-      - WEBHOOK_URL=
+      - WEBHOOK_URL=https://{DOMAIN_NAME}/webhook
       - ADMIN_TG=${ADMIN_TG}
-      - DEBUG=True
+      - DEBUG=False
       - PROXY_URL=${PROXY_URL}
       - REDIS_URL=redis://redis:6379/0
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/sasha4ka/barber-api:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -115,13 +104,8 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
   notification_service:
-    build:
-      context: .
-      dockerfile: apps/notification_service/Dockerfile
-    environment:
-      - BOT_TOKEN=${BOT_TOKEN}
-      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
-      - PROXY_URL=${PROXY_URL}
+    image: ghcr.io/sasha4ka/barber-notification-service:latest
+    restart: unless-stopped
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -129,12 +113,14 @@ services:
         condition: service_started
     networks:
       - bot_network
-    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      - PROXY_URL=${PROXY_URL}
 
 volumes:
   pd-data:
   redis-data:
-  xray-config:
   rabbitmq_data:
 
 networks:

@@ -1,0 +1,17 @@
+services:
+  xray-proxy:
+    image: teddysun/xray:latest
+    restart: unless-stopped
+    environment:
+      - SUB_URL=${SUBSCRIPTION_URL}
+    volumes:
+      - ./xray-core/init_xray.sh:/entrypoint.sh:ro
+      - xray-config:/etc/xray
+    ports:
+      - "10808:10808"
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    networks:
+      - bot_network
+
+volumes:
+  xray-config:
