@@ -56,8 +56,8 @@ flowchart TD
 
 ## 5. Быстрый запуск
 Используйте эти команды для быстрого deployment-а приложения на ваш сервер. Миграции alembic применяются автоматически прямо в docker-compose
-```
-1. git clone https://github.com/sasha4ka/book-bot && cd book-bot
+```bash
+1. git clone https://github.com/sasha4ka/barber-bot && cd barber-bot
 2. vim .env # Создайте и заполните файл .env в соответствии с .env.example
 3. docker compose -f "docker-compose.prod.yaml" up -d
 ```
@@ -66,7 +66,7 @@ flowchart TD
 ### Настройка окружения
 ```bash
 1. curl -LsSf https://astral.sh/uv/install.sh | sh # Установка пакетного менеджера uv
-2. git clone https://github.com/sasha4ka/book-bot && cd book-bot
+2. git clone https://github.com/sasha4ka/barber-bot && cd barber-bot
 3. uv sync
 3. vim .env # Настройте переменный окружения в соответствии с .env.example
 ```
