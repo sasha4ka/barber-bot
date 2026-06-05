@@ -79,7 +79,7 @@ services:
       - WEBHOOK_URL=https://{DOMAIN_NAME}/webhook
       - ADMIN_TG=${ADMIN_TG}
       - DEBUG=False
-      - PROXY_URL=socks5://xray-proxy:10808
+      - PROXY_URL=${PROXY_URL}
       - REDIS_URL=redis://redis:6379/0
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
@@ -115,24 +115,11 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
-      - PROXY_URL=socks5://xray-proxy:10808
-
-  xray-proxy:
-    image: teddysun/xray:latest
-    restart: unless-stopped
-    environment:
-      - SUB_URL=${SUBSCRIPTION_URL}
-    volumes:
-      - ./xray-core/init_xray.sh:/entrypoint.sh:ro
-      - xray-config:/etc/xray
-    entrypoint: ["/bin/sh", "/entrypoint.sh"]
-    networks:
-      - bot_network
+      - PROXY_URL=${PROXY_URL}
 
 volumes:
   pd-data:
   redis-data:
-  xray-config:
   rabbitmq_data:
 
 networks:
