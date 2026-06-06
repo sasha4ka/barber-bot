@@ -72,7 +72,7 @@ async def main():
         app = web.Application()
 
         handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-        handler.register(app, path=settings.WEBHOOK_URL)
+        handler.register(app, path="/webhook")
 
         setup_application(app, dp, bot=bot)
 
