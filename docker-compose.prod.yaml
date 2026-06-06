@@ -79,7 +79,7 @@ services:
       - bot_network
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
-      - WEBHOOK_URL=https://{DOMAIN_NAME}/webhook
+      - WEBHOOK_URL=https://${DOMAIN_NAME}/webhook
       - ADMIN_TG=${ADMIN_TG}
       - DEBUG=False
       - PROXY_URL=${PROXY_URL}
@@ -119,10 +119,32 @@ services:
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - PROXY_URL=${PROXY_URL}
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+    networks:
+      - bot_network
+    depends_on:
+      - api
+      - bot
+
 volumes:
   pd-data:
   redis-data:
   rabbitmq_data:
+  caddy_data:
+  caddy_config:
+  caddy_logs:
 
 networks:
   bot_network:
