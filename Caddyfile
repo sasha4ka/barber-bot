@@ -1,0 +1,8 @@
+{$DOMAIN_NAME:localhost} {
+    reverse_proxy /v1/* api:9000
+    reverse_proxy /webhook bot:8000
+
+    log {
+            output file /var/log/caddy/access.log
+        }
+}
