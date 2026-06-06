@@ -76,7 +76,17 @@ async def main():
 
         setup_application(app, dp, bot=bot)
 
-        web.run_app(app, host="0.0.0.0", port=8000)
+        runner = web.AppRunner(app)
+        await runner.setup()
+
+        site = web.TCPSite(runner, host="0.0.0.0", port=8000)
+        await site.start()
+        print("Webhook server is running on port 8000")
+
+        try:
+            await asyncio.Event().wait()
+        finally:
+            await runner.cleanup()
 
 
 def cli():
