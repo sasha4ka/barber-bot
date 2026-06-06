@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   migrations:
-    image: ghcr.io/sasha4ka/bookbot-migrations:latest
+    image: ghcr.io/sasha4ka/barber-migrations:latest
     depends_on:
       db:
         condition: service_healthy
