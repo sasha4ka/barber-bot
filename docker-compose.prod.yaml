@@ -25,6 +25,11 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - bot_network
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl -n rabbit@rabbitmq status || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:latest
@@ -63,8 +68,6 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
-      xray-proxy:
         condition: service_started
       rabbitmq:
         condition: service_healthy
@@ -109,8 +112,6 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-      xray-proxy:
-        condition: service_started
     networks:
       - bot_network
     environment:

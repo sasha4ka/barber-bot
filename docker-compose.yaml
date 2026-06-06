@@ -73,8 +73,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      xray-proxy:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
       migrations:
@@ -118,18 +116,16 @@ services:
     build:
       context: .
       dockerfile: apps/notification_service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - bot_network
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - RABBITMQ_URL=rabbitmq://user:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       - PROXY_URL=${PROXY_URL}
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      xray-proxy:
-        condition: service_started
-    networks:
-      - bot_network
-    restart: unless-stopped
 
 volumes:
   pd-data:
