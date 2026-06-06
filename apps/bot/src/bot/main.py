@@ -47,7 +47,7 @@ async def main():
 
     dp["redis_client"] = redis_client
 
-    if settings.PROXY_URL:
+    if settings.PROXY_URL and settings.PROXY_URL != "":
         print("Using proxy. URL: ", settings.PROXY_URL)
         session = AiohttpSession(proxy=settings.PROXY_URL)
         bot = Bot(
