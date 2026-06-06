@@ -10,8 +10,6 @@ services:
     ports:
       - "10808:10808"
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
-    networks:
-      - bot_network
 
 volumes:
   xray-config:
