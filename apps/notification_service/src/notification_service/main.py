@@ -34,7 +34,7 @@ async def process_message(message: AbstractIncomingMessage):
 async def main():
     global bot
 
-    if settings.PROXY_URL:
+    if settings.PROXY_URL and settings.PROXY_URL != "":
         session = AiohttpSession(proxy=settings.PROXY_URL)
         bot = Bot(token=settings.BOT_TOKEN, session=session)
     else:
