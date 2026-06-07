@@ -1,5 +1,6 @@
 from core_shared import AsyncSession
 from core_shared.models import Master
+from core_shared.security import JWTAuthenticator
 from core_shared.services.master import (
     create_master,
     get_masters,
@@ -7,6 +8,7 @@ from core_shared.services.master import (
 )
 from fastapi import APIRouter, Depends
 
+from api.authenticator import get_jwt_authenticator
 from api.dependencies import async_session, get_admin, get_current_master
 from api.v1.schemas.master import (
     CreateMasterRequest,
@@ -45,8 +47,10 @@ async def change_password_handler(
     model: UpdateMasterPasswordRequest,
     session: AsyncSession = Depends(async_session),
     master: Master = Depends(get_current_master),
+    jwt: JWTAuthenticator = Depends(get_jwt_authenticator),
 ):
     await update_master_password(
         master_id=master.id, new_password=model.new_password, session=session
     )
-    return {"message": "Password updated successfully"}
+    await jwt.revoke_token(master.id)
+    return {"message": "Password updated successfully. You need to relogin"}
