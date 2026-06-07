@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   migrations:
-    image: ghcr.io/sasha4ka/barber-migrations:latest
+    image: ghcr.io/sasha4ka/barber-migrations:v1
     depends_on:
       db:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
       - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   bot:
-    image: ghcr.io/sasha4ka/barber-bot:latest
+    image: ghcr.io/sasha4ka/barber-bot:v1
     restart: unless-stopped
     depends_on:
       db:
@@ -88,7 +88,7 @@ services:
       - POSTGRES_URL=postgresql+asyncpg://bookbot:${POSTGRES_PASSWORD}@db:5432/bookbot
 
   api:
-    image: ghcr.io/sasha4ka/barber-api:latest
+    image: ghcr.io/sasha4ka/barber-api:v1
     restart: unless-stopped
     depends_on:
       db:
@@ -107,7 +107,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
   notification_service:
-    image: ghcr.io/sasha4ka/barber-notification-service:latest
+    image: ghcr.io/sasha4ka/barber-notification-service:v1
     restart: unless-stopped
     depends_on:
       rabbitmq:
